@@ -312,9 +312,10 @@ namespace BetterStepsRecorder
         {
             byte[] imageBytes = Convert.FromBase64String(base64String);
             using (var ms = new MemoryStream(imageBytes))
+            using (var tmp = new Bitmap(ms))
             {
                 // Return a Bitmap (stream-independent copy) so the stream can be safely disposed
-                return new Bitmap(ms);
+                return new Bitmap(tmp);
             }
         }
 

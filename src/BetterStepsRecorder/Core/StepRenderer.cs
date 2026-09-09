@@ -23,7 +23,9 @@ namespace BetterStepsRecorder
             try
             {
                 using var ms = new MemoryStream(raw);
-                bmp = new Bitmap(ms);
+                // GDI+ 要求源流在位图存活期间保持打开；这里立即复制一份与流无关的位图
+                using var tmp = new Bitmap(ms);
+                bmp = new Bitmap(tmp);
             }
             catch { return null; }
 

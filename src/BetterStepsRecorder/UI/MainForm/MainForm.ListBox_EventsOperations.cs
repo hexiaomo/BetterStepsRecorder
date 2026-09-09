@@ -37,31 +37,20 @@ namespace BetterStepsRecorder
                     try { propertyGrid_RecordEvent.SelectedObject = selectedEvent; } catch (Exception ex)
                     { System.Diagnostics.Debug.WriteLine($"PropertyGrid set failed: {ex.Message}"); }
 
-                    // Load screenshot from RAM (Screenshotb64) or spool file (ScreenshotSpoolPath)
-                    byte[]? imgBytes = Program.GetScreenshotBytes(selectedEvent);
-                    if (imgBytes != null)
+                    // 与编辑器/导出共用同一条渲染管线：底图 + 叠加层 → 独立位图
+                    Bitmap? newImage = null;
+                    try
                     {
-                        try
-                        {
-                            using (MemoryStream ms = new MemoryStream(imgBytes))
-                            {
-                                var oldImage = pictureBox1.Image;
-                                pictureBox1.Image = new Bitmap(ms);
-                                oldImage?.Dispose();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
-                            pictureBox1.Image?.Dispose();
-                            pictureBox1.Image = null;
-                        }
+                        newImage = StepRenderer.Render(selectedEvent);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        pictureBox1.Image?.Dispose();
-                        pictureBox1.Image = null;
+                        System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
                     }
+
+                    var oldImage = pictureBox1.Image;
+                    pictureBox1.Image = newImage;
+                    oldImage?.Dispose();
 
                     // Set the step text
                     richTextBox_stepText.Text = selectedEvent._StepText;

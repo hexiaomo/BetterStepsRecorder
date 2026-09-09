@@ -580,7 +580,11 @@ namespace BetterStepsRecorder
             float sy = view.Height / (float)pictureBox1.Image.Height;
             if (sx <= 0 || float.IsNaN(sx) || float.IsInfinity(sx)) return;
 
-            using var g = e.Graphics;
+            // 注意：e.Graphics 是 WinForms 双缓冲共享的画布，绝不能 Dispose，
+            // 否则事件返回后 BufferedGraphics.Render() 会因 GetHdc 失败而抛
+            // “参数无效”，整张图无法上屏（PictureBox 只剩灰色背景）。
+            var g = e.Graphics;
+            var state = g.Save();
             g.TranslateTransform(view.X, view.Y);
             g.ScaleTransform(sx, sy);
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -642,6 +646,9 @@ namespace BetterStepsRecorder
                 else
                     DrawSelection(g, a.X - 3, a.Y - 3, a.Width + 6, a.Height + 6, sx);
             }
+
+            // 还原坐标变换，保持共享画布干净
+            g.Restore(state);
         }
 
         private static void DrawSelection(Graphics g, int x, int y, int w, int h, float scale)
