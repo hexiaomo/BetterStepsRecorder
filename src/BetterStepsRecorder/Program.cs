@@ -40,6 +40,18 @@ namespace BetterStepsRecorder
         [STAThread]
         static void Main()
         {
+            // 把所有未处理异常都拦下来、记日志，不再弹 JIT 调试对话框
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += (s, e) =>
+            {
+                Debug.WriteLine($"[ThreadException] {e.Exception}");
+            };
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                if (e.ExceptionObject is Exception ex)
+                    Debug.WriteLine($"[UnhandledException] {ex}");
+            };
+
             ApplicationConfiguration.Initialize();
 
             // Load persisted recording settings (singleton pattern - loads once)

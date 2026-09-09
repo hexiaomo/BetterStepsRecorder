@@ -26,48 +26,54 @@ namespace BetterStepsRecorder
         /// </summary>
         private void Listbox_Events_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ResetImageTools();
-
-            if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+            try
             {
-                propertyGrid_RecordEvent.SelectedObject = selectedEvent;
+                ResetImageTools();
 
-                // Load screenshot from RAM (Screenshotb64) or spool file (ScreenshotSpoolPath)
-                byte[]? imgBytes = Program.GetScreenshotBytes(selectedEvent);
-                if (imgBytes != null)
+                if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
                 {
-                    try
+                    // PropertyGrid 偶尔会因为某些奇怪属性而抛，先置空再赋值更稳
+                    try { propertyGrid_RecordEvent.SelectedObject = null; } catch { }
+                    try { propertyGrid_RecordEvent.SelectedObject = selectedEvent; } catch (Exception ex)
+                    { System.Diagnostics.Debug.WriteLine($"PropertyGrid set failed: {ex.Message}"); }
+
+                    // Load screenshot from RAM (Screenshotb64) or spool file (ScreenshotSpoolPath)
+                    byte[]? imgBytes = Program.GetScreenshotBytes(selectedEvent);
+                    if (imgBytes != null)
                     {
-                        using (MemoryStream ms = new MemoryStream(imgBytes))
+                        try
                         {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = new Bitmap(ms);
-                            oldImage?.Dispose();
+                            using (MemoryStream ms = new MemoryStream(imgBytes))
+                            {
+                                var oldImage = pictureBox1.Image;
+                                pictureBox1.Image = new Bitmap(ms);
+                                oldImage?.Dispose();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
+                            pictureBox1.Image?.Dispose();
+                            pictureBox1.Image = null;
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
                         pictureBox1.Image?.Dispose();
                         pictureBox1.Image = null;
                     }
-                }
-                else
-                {
-                    pictureBox1.Image?.Dispose();
-                    pictureBox1.Image = null;
-                }
 
-                // Set the step text
-                richTextBox_stepText.Text = selectedEvent._StepText;
+                    // Set the step text
+                    richTextBox_stepText.Text = selectedEvent._StepText;
 
-                // Re-enable undo if this step has history
-                if (_undoStacks.TryGetValue(selectedEvent.ID, out var existingStack) && existingStack.Count > 0)
-                    undoToolStripButton.Enabled = true;
+                    // Re-enable undo if this step has history
+                    if (_undoStacks.TryGetValue(selectedEvent.ID, out var existingStack) && existingStack.Count > 0)
+                        undoToolStripButton.Enabled = true;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // if not a record event
+                System.Diagnostics.Debug.WriteLine($"Listbox_Events_SelectedIndexChanged: {ex}");
             }
         }
 

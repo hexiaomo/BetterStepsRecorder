@@ -32,8 +32,7 @@ namespace BetterStepsRecorder
                         // Copy the specified screen area to the bitmap
                         gfx.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height), CopyPixelOperation.SourceCopy);
 
-                        // Draw an arrow pointing at the click position (use snapshotted coords, not live cursor)
-                        DrawArrowAtCursor(gfx, width, height, x, y, cursorPos);
+                        // 指针与提示文字框由 StepRenderer 作为叠加层合成，此处保持原始截图
                     }
 
                     // Convert the bitmap to a memory stream
@@ -271,10 +270,10 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Reads raw PNG bytes for a RecordEvent, whether stored in RAM (Screenshotb64)
-        /// or on disk (ScreenshotSpoolPath). Returns null if neither is available.
+        /// 读取【原始截图】字节（不含指针、提示框、马赛克等叠加内容）。
+        /// 编辑器与 StepRenderer 使用它作为底图。
         /// </summary>
-        public static byte[]? GetScreenshotBytes(RecordEvent recordEvent)
+        public static byte[]? GetBaseScreenshotBytes(RecordEvent recordEvent)
         {
             if (!string.IsNullOrEmpty(recordEvent.Screenshotb64))
                 return Convert.FromBase64String(recordEvent.Screenshotb64);
@@ -284,6 +283,24 @@ namespace BetterStepsRecorder
                 return File.ReadAllBytes(recordEvent.ScreenshotSpoolPath);
 
             return null;
+        }
+
+        /// <summary>
+        /// 读取【合成后】的截图字节：原始截图 + 裁剪 + 标注 + 鼠标指针 + 提示文字框。
+        /// 所有导出格式都使用它，保证与编辑器中看到的一致。
+        /// </summary>
+        public static byte[]? GetScreenshotBytes(RecordEvent recordEvent)
+        {
+            // 没有任何叠加内容时直接返回原始图，避免无谓的解码/编码
+            bool plain = !(recordEvent.Overlay?.HasCrop ?? false)
+                         && (recordEvent.Overlay?.Annotations == null || recordEvent.Overlay.Annotations.Count == 0)
+                         && !(recordEvent.Overlay?.IndicatorEnabled ?? false)
+                         && !(recordEvent.Overlay?.LabelEnabled ?? false);
+
+            if (plain) return GetBaseScreenshotBytes(recordEvent);
+
+            byte[]? rendered = StepRenderer.RenderToBytes(recordEvent);
+            return rendered ?? GetBaseScreenshotBytes(recordEvent);
         }
 
         /// <summary>

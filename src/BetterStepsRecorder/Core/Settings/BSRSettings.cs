@@ -35,6 +35,9 @@ namespace BetterStepsRecorder
         {
             public const int MinCroppedPadding = 50;
             public const int MaxCroppedPadding = 500;
+            public const int MinFollowMouseSize = 160;
+            public const int MaxFollowMouseWidth = 3840;
+            public const int MaxFollowMouseHeight = 2160;
         }
 
         /// <summary>
@@ -61,6 +64,7 @@ namespace BetterStepsRecorder
 
         public GeneralSettings General { get; set; } = new GeneralSettings();
         public IndicatorSettings Indicator { get; set; } = new IndicatorSettings();
+        public ClickLabelSettings ClickLabel { get; set; } = new ClickLabelSettings();
         public ScreenshotSettings Screenshot { get; set; } = new ScreenshotSettings();
         public ExportSettings ExportOptions { get; set; } = new ExportSettings();
 
@@ -73,6 +77,7 @@ namespace BetterStepsRecorder
         {
             General = new GeneralSettings();
             Indicator = new IndicatorSettings();
+            ClickLabel = new ClickLabelSettings();
             Screenshot = new ScreenshotSettings();
             ExportOptions = new ExportSettings();
         }
@@ -146,6 +151,15 @@ namespace BetterStepsRecorder
             wasModified |= Screenshot.Click.Cropped.Padding != originalClickPadding;
             wasModified |= Screenshot.Drag.Cropped.Padding != originalDragPadding;
 
+            // 跟随鼠标窗口尺寸
+            Screenshot.Click.FollowMouse ??= new FollowMouseSettings();
+            int originalFmWidth = Screenshot.Click.FollowMouse.Width;
+            int originalFmHeight = Screenshot.Click.FollowMouse.Height;
+            Screenshot.Click.FollowMouse.Width = Math.Clamp(originalFmWidth, Bounds.MinFollowMouseSize, Bounds.MaxFollowMouseWidth);
+            Screenshot.Click.FollowMouse.Height = Math.Clamp(originalFmHeight, Bounds.MinFollowMouseSize, Bounds.MaxFollowMouseHeight);
+            wasModified |= Screenshot.Click.FollowMouse.Width != originalFmWidth;
+            wasModified |= Screenshot.Click.FollowMouse.Height != originalFmHeight;
+
             // Validate color (ensure it's not fully transparent and has valid alpha channel)
             var color = System.Drawing.Color.FromArgb(Indicator.Color);
             if (color.A < 128) // If mostly transparent (less than 50% opacity), reset to default
@@ -210,14 +224,23 @@ namespace BetterStepsRecorder
                     // Ensure nested objects are initialized if deserialization resulted in nulls
                     settings.General ??= new GeneralSettings();
                     settings.Indicator ??= new IndicatorSettings();
+                    settings.ClickLabel ??= new ClickLabelSettings();
                     settings.Screenshot ??= new ScreenshotSettings();
                     settings.Screenshot.Click ??= new ClickSettings();
                     settings.Screenshot.Drag ??= new DragSettings();
                     settings.Screenshot.Click.Cropped ??= new CroppedSettings { Padding = Default.Screenshot.Click.Cropped.Padding };
+                    settings.Screenshot.Click.FollowMouse ??= new FollowMouseSettings();
                     settings.Screenshot.Drag.Cropped ??= new CroppedSettings { Padding = Default.Screenshot.Drag.Cropped.Padding };
                     settings.Screenshot.Drag.Fallback ??= new DragFallbackSettings();
                     settings.ExportOptions ??= new ExportSettings();
                     settings.ExportOptions.Html ??= new HtmlSettings();
+                    settings.ExportOptions.Markdown ??= new MarkdownSettings();
+                    settings.ExportOptions.Rtf ??= new RtfSettings();
+                    settings.ExportOptions.Odt ??= new OdtSettings();
+                    settings.ExportOptions.Obsidian ??= new ObsidianSettings();
+                    settings.ExportOptions.LongImage ??= new LongImageSettings();
+                    settings.ExportOptions.ImageSequence ??= new ImageSequenceSettings();
+                    settings.ExportOptions.Pdf ??= new PdfSettings();
                 }
                 else
                 {

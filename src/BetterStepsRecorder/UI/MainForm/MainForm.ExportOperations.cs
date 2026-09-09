@@ -86,6 +86,58 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// 导出为纵向拼接的一张长图
+        /// </summary>
+        private void exportToLongImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveRecordEvents();
+            using var dlg = new SaveFileDialog
+            {
+                Title = "导出长图",
+                FileName = GetDefaultExportFileName() + ".png",
+                Filter = "PNG 图片 (*.png)|*.png|JPEG 图片 (*.jpg)|*.jpg",
+                DefaultExt = "png"
+            };
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            new LongImageExporter().Export(dlg.FileName);
+        }
+
+        /// <summary>
+        /// 导出为按步骤编号的多张图片
+        /// </summary>
+        private void exportToImageSequenceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveRecordEvents();
+            using var dlg = new FolderBrowserDialog
+            {
+                Description = "选择一个空文件夹，用于存放按步骤编号的截图",
+                UseDescriptionForTitle = true
+            };
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            new ImageSequenceExporter().Export(dlg.SelectedPath);
+        }
+
+        /// <summary>
+        /// 导出为 PDF
+        /// </summary>
+        private void exportToPdfToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveRecordEvents();
+            using var dlg = new SaveFileDialog
+            {
+                Title = "导出 PDF",
+                FileName = GetDefaultExportFileName() + ".pdf",
+                Filter = "PDF 文档 (*.pdf)|*.pdf",
+                DefaultExt = "pdf"
+            };
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            new PdfExporter().Export(dlg.FileName);
+        }
+
+        /// <summary>
         /// Enables or disables the export menu items based on whether there are items to export
         /// </summary>
         private void EnableDisable_exportToolStripMenuItem()

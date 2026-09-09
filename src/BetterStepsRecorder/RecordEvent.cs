@@ -39,6 +39,18 @@ namespace BetterStepsRecorder
         public string? EventType { get; set; }
         public string? Screenshotb64 { get; set; }
 
+        /// <summary>截图区域（虚拟屏幕坐标），用于把鼠标坐标换算成图片内坐标。</summary>
+        public int CaptureLeft { get; set; }
+        public int CaptureTop { get; set; }
+        public int CaptureWidth { get; set; }
+        public int CaptureHeight { get; set; }
+
+        /// <summary>
+        /// 该步骤的叠加层：鼠标指针、点击提示文字框、马赛克等标注。
+        /// 底图始终保存原始截图，显示与导出时由 StepRenderer 实时合成。
+        /// </summary>
+        public StepOverlay Overlay { get; set; } = new StepOverlay();
+
         public string? _StepText { get; set; }
 
         /// <summary>

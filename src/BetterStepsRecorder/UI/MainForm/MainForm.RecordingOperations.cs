@@ -15,7 +15,7 @@ namespace BetterStepsRecorder
             if (Program.IsRecording)
             {
                 Program.UnHookMouseOperations();
-                ToolStripMenuItem_Recording.Text = "Start Recording";
+                ToolStripMenuItem_Recording.Text = "开始录制";
                 ToolStripMenuItem_Recording.BackColor = SystemColors.Control;
                 ToolStripMenuItem_Recording.Image = Properties.Resources.RecordTiny;
                 ActivityDelay = DefaultActivityDelay;
@@ -23,8 +23,11 @@ namespace BetterStepsRecorder
             }
             else
             {
+                // 没有工程文件时先自动建一个草稿，保证录制过程中随时落盘
+                Program.EnsureDraftFile();
+
                 Program.HookMouseOperations();
-                ToolStripMenuItem_Recording.Text = "Pause Recording";
+                ToolStripMenuItem_Recording.Text = "暂停录制";
                 ToolStripMenuItem_Recording.BackColor = Color.IndianRed;
                 ToolStripMenuItem_Recording.Image = Properties.Resources.RecordPauseTiny;
                 ActivityDelay = 15000;
@@ -76,6 +79,9 @@ namespace BetterStepsRecorder
         /// <param name="recordEvent">The record event to add</param>
         public void AddRecordEventToListBox(RecordEvent recordEvent)
         {
+            // 补上截图区域与叠加层（鼠标指针 / 提示文字框）的初始值
+            Program.EnsureCaptureMetadata(recordEvent);
+
             Listbox_Events.Items.Add(recordEvent);
             EnableDisable_exportToolStripMenuItem();
         }

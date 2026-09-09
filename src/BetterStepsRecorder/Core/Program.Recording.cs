@@ -332,6 +332,15 @@ namespace BetterStepsRecorder
                                     captureWidth = SystemInformation.VirtualScreen.Width;
                                     captureHeight = SystemInformation.VirtualScreen.Height;
                                 }
+                                else if (BSRSettings.Current.Screenshot.Click.Mode == ClickScreenshotMode.FollowMouse)
+                                {
+                                    var fm = BSRSettings.Current.Screenshot.Click.FollowMouse;
+                                    var vs = SystemInformation.VirtualScreen;
+                                    captureWidth = Math.Min(Math.Max(fm.Width, 160), vs.Width);
+                                    captureHeight = Math.Min(Math.Max(fm.Height, 120), vs.Height);
+                                    captureLeft = Math.Max(vs.Left, Math.Min(cursorPos.X - captureWidth / 2, vs.Right - captureWidth));
+                                    captureTop = Math.Max(vs.Top, Math.Min(cursorPos.Y - captureHeight / 2, vs.Bottom - captureHeight));
+                                }
                                 else if (BSRSettings.Current.Screenshot.Click.Mode == ClickScreenshotMode.ActiveScreen)
                                 {
                                     var screen = Screen.FromPoint(new System.Drawing.Point(cursorPos.X, cursorPos.Y));
@@ -423,8 +432,7 @@ namespace BetterStepsRecorder
                                     {
                                         using (preBitmap)
                                         {
-                                            using (Graphics gfx = Graphics.FromImage(preBitmap))
-                                                DrawArrowAtCursor(gfx, winW, winH, capLeft, capTop, cp);
+                                            // 指针与提示文字框改为叠加层，底图保持原始截图
                                             using (var ms = new System.IO.MemoryStream())
                                             {
                                                 preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
@@ -547,8 +555,7 @@ namespace BetterStepsRecorder
                                 {
                                     using (preBitmap)
                                     {
-                                        using (Graphics gfx = Graphics.FromImage(preBitmap))
-                                            DrawArrowAtCursor(gfx, winW, winH, winRect.Left, winRect.Top, cp);
+                                        // 指针与提示文字框改为叠加层，底图保持原始截图不叠加任何标记
                                         using (var ms = new System.IO.MemoryStream())
                                         {
                                             preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
@@ -583,6 +590,13 @@ namespace BetterStepsRecorder
                             });
                         }
                     }
+                }
+                // ── 中键点击 ──
+                else if (msg == MouseMessages.WM_MBUTTONUP)
+                {
+                    POINT cursorPos;
+                    if (GetCursorPos(out cursorPos))
+                        CaptureClickEvent(cursorPos, "Middle Click");
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);

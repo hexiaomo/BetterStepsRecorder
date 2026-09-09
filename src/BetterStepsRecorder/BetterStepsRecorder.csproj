@@ -9,6 +9,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>stepsrecorder_r2p_icon.ico</ApplicationIcon>
 	<Version>2026.3.29.2040</Version>
+    <AssemblyName>StepRecorder</AssemblyName>
+    <Product>步骤记录器</Product>
+    <Company>StepRecorder</Company>
+    <Title>步骤记录器 — 鼠标点击截图 + 标注导出</Title>
+    <Description>录制鼠标点击步骤并自动截图，支持指针高亮、文字框、马赛克编辑，导出长图 / 图片序列 / PDF / HTML。</Description>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,14 +30,8 @@
     <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="WindowsBase">
-      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\8.0.6\ref\net8.0\WindowsBase.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>

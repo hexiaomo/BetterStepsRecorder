@@ -41,15 +41,18 @@
             splitContainer3 = new SplitContainer();
             pictureBox1 = new PictureBox();
             pictureBoxToolStrip = new ToolStrip();
+            selectToolStripButton = new ToolStripButton();
             undoToolStripButton = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
-            blurRegionToolStripButton = new ToolStripButton();
+            mosaicToolStripButton = new ToolStripButton();
             highlightToolStripButton = new ToolStripButton();
             highlightColourToolStripButton = new ToolStripButton();
             toolStripSeparator3 = new ToolStripSeparator();
             textLabelToolStripButton = new ToolStripButton();
             arrowToolStripButton = new ToolStripButton();
             arrowColourToolStripButton = new ToolStripButton();
+            rectangleToolStripButton = new ToolStripButton();
+            ellipseToolStripButton = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
             cropToolStripButton = new ToolStripButton();
             richTextBox_stepText = new RichTextBox();
@@ -66,7 +69,12 @@
             exportToOdtToolStripMenuItem = new ToolStripMenuItem();
             exportToMarkdownToolStripMenuItem = new ToolStripMenuItem();
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
+            openDraftFolderToolStripMenuItem = new ToolStripMenuItem();
+            exportToLongImageToolStripMenuItem = new ToolStripMenuItem();
+            exportToImageSequenceToolStripMenuItem = new ToolStripMenuItem();
+            exportToPdfToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
+            recordingSettingsToolStripMenuItem = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             notifyIcon = new NotifyIcon(components);
@@ -119,21 +127,21 @@
             // 
             moveUpToolStripMenuItem.Name = "moveUpToolStripMenuItem";
             moveUpToolStripMenuItem.Size = new Size(158, 24);
-            moveUpToolStripMenuItem.Text = "Move Up";
+            moveUpToolStripMenuItem.Text = "上移";
             moveUpToolStripMenuItem.Click += moveUpToolStripMenuItem_Click;
             // 
             // moveDownToolStripMenuItem
             // 
             moveDownToolStripMenuItem.Name = "moveDownToolStripMenuItem";
             moveDownToolStripMenuItem.Size = new Size(158, 24);
-            moveDownToolStripMenuItem.Text = "Move Down";
+            moveDownToolStripMenuItem.Text = "下移";
             moveDownToolStripMenuItem.Click += moveDownToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
             deleteToolStripMenuItem.Size = new Size(158, 24);
-            deleteToolStripMenuItem.Text = "Delete";
+            deleteToolStripMenuItem.Text = "删除步骤";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
             // propertyGrid_RecordEvent
@@ -229,24 +237,39 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.MouseDown += pictureBox1_MouseDown;
+            pictureBox1.MouseMove += pictureBox1_MouseMove;
+            pictureBox1.MouseUp += pictureBox1_MouseUp;
+            pictureBox1.Paint += pictureBox1_Paint;
             // 
             // pictureBoxToolStrip
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { selectToolStripButton, undoToolStripButton, toolStripSeparator2, mosaicToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, rectangleToolStripButton, ellipseToolStripButton, toolStripSeparator4, cropToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(648, 27);
             pictureBoxToolStrip.TabIndex = 1;
             // 
+            // selectToolStripButton
+            // 
+            selectToolStripButton.CheckOnClick = true;
+            selectToolStripButton.Checked = true;
+            selectToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            selectToolStripButton.Name = "selectToolStripButton";
+            selectToolStripButton.Size = new Size(48, 24);
+            selectToolStripButton.Text = "选择";
+            selectToolStripButton.ToolTipText = "选择/拖动指针、提示文字框与标注（Delete 键删除）";
+            selectToolStripButton.Click += selectToolStripButton_Click;
+            // 
             // undoToolStripButton
             // 
             undoToolStripButton.Enabled = false;
             undoToolStripButton.Name = "undoToolStripButton";
-            undoToolStripButton.Size = new Size(66, 24);
-            undoToolStripButton.Text = "↩ Undo";
-            undoToolStripButton.ToolTipText = "Undo last annotation (Ctrl+Z)";
+            undoToolStripButton.Size = new Size(60, 24);
+            undoToolStripButton.Text = "撤销";
+            undoToolStripButton.ToolTipText = "撤销上一步编辑 (Ctrl+Z)";
             undoToolStripButton.Click += undoToolStripButton_Click;
             // 
             // toolStripSeparator2
@@ -254,22 +277,22 @@
             toolStripSeparator2.Name = "toolStripSeparator2";
             toolStripSeparator2.Size = new Size(6, 27);
             // 
-            // blurRegionToolStripButton
+            // mosaicToolStripButton
             // 
-            blurRegionToolStripButton.CheckOnClick = true;
-            blurRegionToolStripButton.Name = "blurRegionToolStripButton";
-            blurRegionToolStripButton.Size = new Size(39, 24);
-            blurRegionToolStripButton.Text = "Blur";
-            blurRegionToolStripButton.ToolTipText = "Draw a rectangle to blur/redact sensitive info";
-            blurRegionToolStripButton.Click += blurRegionToolStripButton_Click;
+            mosaicToolStripButton.CheckOnClick = true;
+            mosaicToolStripButton.Name = "mosaicToolStripButton";
+            mosaicToolStripButton.Size = new Size(56, 24);
+            mosaicToolStripButton.Text = "马赛克";
+            mosaicToolStripButton.ToolTipText = "拖出一个矩形打马赛克，遮盖敏感信息";
+            mosaicToolStripButton.Click += mosaicToolStripButton_Click;
             // 
             // highlightToolStripButton
             // 
             highlightToolStripButton.CheckOnClick = true;
             highlightToolStripButton.Name = "highlightToolStripButton";
-            highlightToolStripButton.Size = new Size(75, 24);
-            highlightToolStripButton.Text = "Highlight";
-            highlightToolStripButton.ToolTipText = "Draw a coloured highlight rectangle";
+            highlightToolStripButton.Size = new Size(48, 24);
+            highlightToolStripButton.Text = "高亮";
+            highlightToolStripButton.ToolTipText = "拖出一个半透明高亮矩形";
             highlightToolStripButton.Click += highlightToolStripButton_Click;
             // 
             // highlightColourToolStripButton
@@ -277,7 +300,7 @@
             highlightColourToolStripButton.Name = "highlightColourToolStripButton";
             highlightColourToolStripButton.Size = new Size(34, 24);
             highlightColourToolStripButton.Text = "🎨";
-            highlightColourToolStripButton.ToolTipText = "Pick highlight colour";
+            highlightColourToolStripButton.ToolTipText = "选择高亮颜色";
             highlightColourToolStripButton.Click += highlightColourToolStripButton_Click;
             // 
             // toolStripSeparator3
@@ -289,18 +312,18 @@
             // 
             textLabelToolStripButton.CheckOnClick = true;
             textLabelToolStripButton.Name = "textLabelToolStripButton";
-            textLabelToolStripButton.Size = new Size(40, 24);
-            textLabelToolStripButton.Text = "Text";
-            textLabelToolStripButton.ToolTipText = "Click to place a text label on the screenshot";
+            textLabelToolStripButton.Size = new Size(56, 24);
+            textLabelToolStripButton.Text = "文字框";
+            textLabelToolStripButton.ToolTipText = "拖出带边框的文字框（双击可改文字）";
             textLabelToolStripButton.Click += textLabelToolStripButton_Click;
             // 
             // arrowToolStripButton
             // 
             arrowToolStripButton.CheckOnClick = true;
             arrowToolStripButton.Name = "arrowToolStripButton";
-            arrowToolStripButton.Size = new Size(53, 24);
-            arrowToolStripButton.Text = "Arrow";
-            arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
+            arrowToolStripButton.Size = new Size(48, 24);
+            arrowToolStripButton.Text = "箭头";
+            arrowToolStripButton.ToolTipText = "画一个箭头";
             arrowToolStripButton.Click += arrowToolStripButton_Click;
             // 
             // arrowColourToolStripButton
@@ -309,8 +332,28 @@
             arrowColourToolStripButton.Name = "arrowColourToolStripButton";
             arrowColourToolStripButton.Size = new Size(34, 24);
             arrowColourToolStripButton.Text = "🎨";
-            arrowColourToolStripButton.ToolTipText = "Pick arrow colour";
+            arrowColourToolStripButton.ToolTipText = "选择箭头/框线颜色";
             arrowColourToolStripButton.Click += arrowColourToolStripButton_Click;
+            // 
+            // rectangleToolStripButton
+            // 
+            rectangleToolStripButton.CheckOnClick = true;
+            rectangleToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            rectangleToolStripButton.Name = "rectangleToolStripButton";
+            rectangleToolStripButton.Size = new Size(48, 24);
+            rectangleToolStripButton.Text = "矩形";
+            rectangleToolStripButton.ToolTipText = "画一个矩形框";
+            rectangleToolStripButton.Click += rectangleToolStripButton_Click;
+            // 
+            // ellipseToolStripButton
+            // 
+            ellipseToolStripButton.CheckOnClick = true;
+            ellipseToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            ellipseToolStripButton.Name = "ellipseToolStripButton";
+            ellipseToolStripButton.Size = new Size(48, 24);
+            ellipseToolStripButton.Text = "椭圆";
+            ellipseToolStripButton.ToolTipText = "画一个椭圆框";
+            ellipseToolStripButton.Click += ellipseToolStripButton_Click;
             // 
             // toolStripSeparator4
             // 
@@ -321,9 +364,9 @@
             // 
             cropToolStripButton.CheckOnClick = true;
             cropToolStripButton.Name = "cropToolStripButton";
-            cropToolStripButton.Size = new Size(45, 24);
-            cropToolStripButton.Text = "Crop";
-            cropToolStripButton.ToolTipText = "Crop the screenshot to the selected area";
+            cropToolStripButton.Size = new Size(48, 24);
+            cropToolStripButton.Text = "裁剪";
+            cropToolStripButton.ToolTipText = "把截图裁剪到选定区域（可撤销）";
             cropToolStripButton.Click += cropToolStripButton_Click;
             // 
             // richTextBox_stepText
@@ -340,7 +383,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording, settingsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording, recordingSettingsToolStripMenuItem, settingsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
@@ -350,23 +393,23 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, toolStripMenuItem1_SaveAs, toolStripSeparator1, exportToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, toolStripMenuItem1_SaveAs, openDraftFolderToolStripMenuItem, toolStripSeparator1, exportToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(44, 24);
-            fileToolStripMenuItem.Text = "File";
+            fileToolStripMenuItem.Size = new Size(52, 24);
+            fileToolStripMenuItem.Text = "文件";
             // 
             // newToolStripMenuItem
             // 
             newToolStripMenuItem.Name = "newToolStripMenuItem";
             newToolStripMenuItem.Size = new Size(180, 24);
-            newToolStripMenuItem.Text = "New";
+            newToolStripMenuItem.Text = "新建录制";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
             openToolStripMenuItem.Size = new Size(180, 24);
-            openToolStripMenuItem.Text = "Open";
+            openToolStripMenuItem.Text = "打开草稿…";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1_SaveAs
@@ -374,7 +417,7 @@
             toolStripMenuItem1_SaveAs.Enabled = false;
             toolStripMenuItem1_SaveAs.Name = "toolStripMenuItem1_SaveAs";
             toolStripMenuItem1_SaveAs.Size = new Size(180, 24);
-            toolStripMenuItem1_SaveAs.Text = "Save As";
+            toolStripMenuItem1_SaveAs.Text = "另存为…";
             toolStripMenuItem1_SaveAs.Click += toolStripMenuItem1_SaveAs_Click;
             // 
             // toolStripSeparator1
@@ -384,18 +427,46 @@
             // 
             // exportToolStripMenuItem
             // 
-            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
+            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToLongImageToolStripMenuItem, exportToImageSequenceToolStripMenuItem, exportToPdfToolStripMenuItem, exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
             exportToolStripMenuItem.Enabled = false;
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             exportToolStripMenuItem.Size = new Size(180, 24);
-            exportToolStripMenuItem.Text = "Export";
+            exportToolStripMenuItem.Text = "导出";
+            // 
+            // openDraftFolderToolStripMenuItem
+            // 
+            openDraftFolderToolStripMenuItem.Name = "openDraftFolderToolStripMenuItem";
+            openDraftFolderToolStripMenuItem.Size = new Size(180, 24);
+            openDraftFolderToolStripMenuItem.Text = "打开草稿目录";
+            openDraftFolderToolStripMenuItem.Click += openDraftFolderToolStripMenuItem_Click;
+            // 
+            // exportToLongImageToolStripMenuItem
+            // 
+            exportToLongImageToolStripMenuItem.Name = "exportToLongImageToolStripMenuItem";
+            exportToLongImageToolStripMenuItem.Size = new Size(200, 24);
+            exportToLongImageToolStripMenuItem.Text = "合成一张长图…";
+            exportToLongImageToolStripMenuItem.Click += exportToLongImageToolStripMenuItem_Click;
+            // 
+            // exportToImageSequenceToolStripMenuItem
+            // 
+            exportToImageSequenceToolStripMenuItem.Name = "exportToImageSequenceToolStripMenuItem";
+            exportToImageSequenceToolStripMenuItem.Size = new Size(200, 24);
+            exportToImageSequenceToolStripMenuItem.Text = "多张图片（按步骤编号）…";
+            exportToImageSequenceToolStripMenuItem.Click += exportToImageSequenceToolStripMenuItem_Click;
+            // 
+            // exportToPdfToolStripMenuItem
+            // 
+            exportToPdfToolStripMenuItem.Name = "exportToPdfToolStripMenuItem";
+            exportToPdfToolStripMenuItem.Size = new Size(200, 24);
+            exportToPdfToolStripMenuItem.Text = "PDF 文档…";
+            exportToPdfToolStripMenuItem.Click += exportToPdfToolStripMenuItem_Click;
             // 
             // exportToFileToolStripMenuItem
             // 
             exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToMarkdownToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
-            exportToFileToolStripMenuItem.Size = new Size(194, 24);
-            exportToFileToolStripMenuItem.Text = "To File";
+            exportToFileToolStripMenuItem.Size = new Size(200, 24);
+            exportToFileToolStripMenuItem.Text = "其他格式";
             // 
             // exportToRtfToolStripMenuItem
             // 
@@ -428,8 +499,8 @@
             // exportToObsidianVaultToolStripMenuItem
             // 
             exportToObsidianVaultToolStripMenuItem.Name = "exportToObsidianVaultToolStripMenuItem";
-            exportToObsidianVaultToolStripMenuItem.Size = new Size(194, 24);
-            exportToObsidianVaultToolStripMenuItem.Text = "To Obsidian Vault";
+            exportToObsidianVaultToolStripMenuItem.Size = new Size(200, 24);
+            exportToObsidianVaultToolStripMenuItem.Text = "导出到 Obsidian";
             exportToObsidianVaultToolStripMenuItem.Click += exportToObsidianVaultToolStripMenuItem_Click;
             // 
             // ToolStripMenuItem_Recording
@@ -440,28 +511,35 @@
             ToolStripMenuItem_Recording.Name = "ToolStripMenuItem_Recording";
             ToolStripMenuItem_Recording.RightToLeft = RightToLeft.No;
             ToolStripMenuItem_Recording.Size = new Size(140, 24);
-            ToolStripMenuItem_Recording.Text = "Start Recording";
+            ToolStripMenuItem_Recording.Text = "开始录制";
             ToolStripMenuItem_Recording.Click += ToolStripMenuItem_Recording_Click;
+            // 
+            // recordingSettingsToolStripMenuItem
+            // 
+            recordingSettingsToolStripMenuItem.Name = "recordingSettingsToolStripMenuItem";
+            recordingSettingsToolStripMenuItem.Size = new Size(80, 24);
+            recordingSettingsToolStripMenuItem.Text = "录制设置";
+            recordingSettingsToolStripMenuItem.Click += recordingSettingsToolStripMenuItem_Click;
             // 
             // settingsToolStripMenuItem
             // 
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(74, 24);
-            settingsToolStripMenuItem.Text = "Settings";
+            settingsToolStripMenuItem.Size = new Size(80, 24);
+            settingsToolStripMenuItem.Text = "高级设置";
             settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
             // 
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             helpToolStripMenuItem.Size = new Size(53, 24);
-            helpToolStripMenuItem.Text = "Help";
+            helpToolStripMenuItem.Text = "帮助";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
             // 
             // notifyIcon
             // 
             notifyIcon.ContextMenuStrip = notifyIconContextMenu;
             notifyIcon.Icon = (Icon)resources.GetObject("$this.Icon");
-            notifyIcon.Text = "Better Steps Recorder";
+            notifyIcon.Text = "步骤记录器";
             notifyIcon.Visible = false;
             notifyIcon.DoubleClick += notifyIcon_DoubleClick;
             // 
@@ -475,14 +553,14 @@
             // 
             restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
             restoreToolStripMenuItem.Size = new Size(120, 24);
-            restoreToolStripMenuItem.Text = "Restore";
+            restoreToolStripMenuItem.Text = "显示主窗口";
             restoreToolStripMenuItem.Click += restoreToolStripMenuItem_Click;
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             exitToolStripMenuItem.Size = new Size(120, 24);
-            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Text = "退出";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
             // MainForm
@@ -494,9 +572,10 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
+            KeyPreview = true;
             Margin = new Padding(3, 4, 3, 4);
             Name = "MainForm";
-            Text = "Better Steps Recorder";
+            Text = "步骤记录器";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             Resize += Form_Resize;
@@ -553,17 +632,25 @@
         private ToolStripMenuItem exportToObsidianVaultToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
+        private ToolStripButton selectToolStripButton;
         private ToolStripButton undoToolStripButton;
         private ToolStripSeparator toolStripSeparator2;
-        private ToolStripButton blurRegionToolStripButton;
+        private ToolStripButton mosaicToolStripButton;
         private ToolStripButton highlightToolStripButton;
         private ToolStripButton highlightColourToolStripButton;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton textLabelToolStripButton;
         private ToolStripButton arrowToolStripButton;
         private ToolStripButton arrowColourToolStripButton;
+        private ToolStripButton rectangleToolStripButton;
+        private ToolStripButton ellipseToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
+        private ToolStripMenuItem openDraftFolderToolStripMenuItem;
+        private ToolStripMenuItem exportToLongImageToolStripMenuItem;
+        private ToolStripMenuItem exportToImageSequenceToolStripMenuItem;
+        private ToolStripMenuItem exportToPdfToolStripMenuItem;
+        private ToolStripMenuItem recordingSettingsToolStripMenuItem;
         private NotifyIcon notifyIcon;
         private ContextMenuStrip notifyIconContextMenu;
         private ToolStripMenuItem restoreToolStripMenuItem;

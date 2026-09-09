@@ -95,6 +95,33 @@ namespace BetterStepsRecorder
             }
         }
 
+        /// <summary>草稿自动保存目录。</summary>
+        public static readonly string DraftDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "BetterStepsRecorder", "drafts");
+
+        /// <summary>
+        /// 确保存在一个工程文件用于自动保存。
+        /// 直接开始录制（没有先点新建/另存为）时，自动在草稿目录建一个 .bsr，
+        /// 这样录制中断或程序意外关闭也不会丢已截图的内容，之后可打开继续录。
+        /// </summary>
+        public static void EnsureDraftFile()
+        {
+            if (zip != null) return;
+
+            try
+            {
+                Directory.CreateDirectory(DraftDir);
+                string path = Path.Combine(DraftDir, $"草稿_{DateTime.Now:yyyyMMdd_HHmmss}.bsr");
+                zip = new ZipFileHandler(path);
+                SaveRecordEvents();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"无法创建草稿文件：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         /// <summary>
         /// Saves the current record events to a new zip file
         /// </summary>
