@@ -16,14 +16,7 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class OdtExporter : ExporterBase
     {
-        private static string FormatDuration(TimeSpan ts)
-        {
-            if (ts.TotalHours >= 1)
-                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
-            if (ts.TotalMinutes >= 1)
-                return $"{ts.Minutes}m {ts.Seconds:D2}s";
-            return $"{ts.Seconds}s";
-        }
+        private static string FormatDuration(TimeSpan ts) => ExportText.FormatDuration(ts);
 
         /// <summary>
         /// Exports the current steps recording to ODT format
@@ -87,7 +80,7 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                ShowExportError("Error exporting to ODT", ex);
+                ShowExportError("导出 ODT 失败", ex);
                 return false;
             }
         }
@@ -154,7 +147,7 @@ namespace BetterStepsRecorder.Exporters
             string contentPath = Path.Combine(tempDir, "content.xml");
 
             int totalSteps = Program._recordEvents.Count;
-            string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+            string generated = ExportText.GeneratedAt(DateTime.Now);
 
             // Compute recording start/end/duration from event timestamps
             DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
@@ -163,7 +156,7 @@ namespace BetterStepsRecorder.Exporters
                 ? recordingEnd.Value - recordingStart.Value
                 : TimeSpan.Zero;
 
-            string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+            string startStr = recordingStart.HasValue ? ExportText.FormatDateTime(recordingStart.Value) : "—";
             string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
             string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
@@ -301,7 +294,7 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Title");
 
                 // Use the filename if available
-                string title = "Steps Recording";
+                string title = "步骤记录";
                 if (Program.zip?.ZipFilePath != null)
                 {
                     title += ": " + Path.GetFileNameWithoutExtension(Program.zip.ZipFilePath);
@@ -314,7 +307,7 @@ namespace BetterStepsRecorder.Exporters
                 {
                     writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
-                    writer.WriteString($"Generated {generated}");
+                    writer.WriteString(generated);
                     writer.WriteEndElement(); // text:p
                 }
 
@@ -331,10 +324,10 @@ namespace BetterStepsRecorder.Exporters
                     writer.WriteEndElement();
 
                     // Add rows
-                    WriteTableRow(writer, "Steps", totalSteps.ToString());
-                    WriteTableRow(writer, "Started", startStr);
-                    WriteTableRow(writer, "Finished", endStr);
-                    WriteTableRow(writer, "Duration", durationStr);
+                    WriteTableRow(writer, ExportText.StepCount, totalSteps.ToString());
+                    WriteTableRow(writer, ExportText.Started, startStr);
+                    WriteTableRow(writer, ExportText.Finished, endStr);
+                    WriteTableRow(writer, ExportText.Duration, durationStr);
 
                     writer.WriteEndElement(); // table:table
 
@@ -352,7 +345,7 @@ namespace BetterStepsRecorder.Exporters
                     // Step header
                     writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
-                    writer.WriteString($"Step {recordEvent.Step}: {recordEvent._StepText}");
+                    writer.WriteString($"步骤 {recordEvent.Step}：{recordEvent._StepText}");
                     writer.WriteEndElement(); // text:p
 
                     // Timestamp
@@ -389,17 +382,17 @@ namespace BetterStepsRecorder.Exporters
 
                         // Add rows
                         if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
-                            WriteTableRow(writer, "Action", recordEvent.EventType);
+                            WriteTableRow(writer, ExportText.ActionLabel, ExportText.ActionOf(recordEvent));
                         if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
-                            WriteTableRow(writer, "Application", recordEvent.ApplicationName);
+                            WriteTableRow(writer, ExportText.ApplicationLabel, recordEvent.ApplicationName);
                         if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
-                            WriteTableRow(writer, "Window", recordEvent.WindowTitle);
+                            WriteTableRow(writer, ExportText.WindowLabel, recordEvent.WindowTitle);
                         if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
-                            WriteTableRow(writer, "Element", recordEvent.ElementName);
+                            WriteTableRow(writer, ExportText.ElementLabel, recordEvent.ElementName);
                         if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
-                            WriteTableRow(writer, "Element Type", recordEvent.ElementType);
+                            WriteTableRow(writer, ExportText.ElementTypeLabel, recordEvent.ElementType);
                         if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
-                            WriteTableRow(writer, "Mouse Position", $"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}");
+                            WriteTableRow(writer, ExportText.MousePositionLabel, $"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}");
 
                         writer.WriteEndElement(); // table:table
 
@@ -473,14 +466,14 @@ namespace BetterStepsRecorder.Exporters
                 // Footer with hyperlink
                 writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                 writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Footer");
-                writer.WriteString("Generated with ");
+                writer.WriteString(ExportText.GeneratedWithPrefix);
 
                 // Create hyperlink with blue color
                 writer.WriteStartElement("a", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                 writer.WriteAttributeString("href", "http://www.w3.org/1999/xlink", "https://github.com/Mentaleak/BetterStepsRecorder");
                 writer.WriteAttributeString("type", "http://www.w3.org/1999/xlink", "simple");
                 writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Hyperlink");
-                writer.WriteString("Better Steps Recorder");
+                writer.WriteString(ExportText.AppLinkText + ExportText.GeneratedWithSuffix);
                 writer.WriteEndElement(); // text:a
 
                 writer.WriteEndElement(); // text:p
@@ -523,7 +516,7 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteAttributeString("line-spacing", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "120%");
                 writer.WriteEndElement(); // style:paragraph-properties
                 writer.WriteStartElement("text-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
-                writer.WriteAttributeString("font-family", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "Segoe UI");
+                writer.WriteAttributeString("font-family", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "Microsoft YaHei UI");
                 writer.WriteAttributeString("font-size", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "11pt");
                 writer.WriteAttributeString("language", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "en");
                 writer.WriteAttributeString("country", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "US");
@@ -597,7 +590,7 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteStartElement("meta", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
                 
                 // Title
-                string title = "Steps Recording";
+                string title = "步骤记录";
                 if (Program.zip?.ZipFilePath != null)
                 {
                     title += ": " + Path.GetFileNameWithoutExtension(Program.zip.ZipFilePath);

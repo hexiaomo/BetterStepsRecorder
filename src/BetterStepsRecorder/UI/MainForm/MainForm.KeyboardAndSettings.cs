@@ -48,7 +48,7 @@ namespace BetterStepsRecorder
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
                 BSRSettings.Current.Save();
-                StatusManager.ShowSuccess("录制设置已保存");
+                StatusManager.ShowSuccess("设置已保存");
             }
         }
     }

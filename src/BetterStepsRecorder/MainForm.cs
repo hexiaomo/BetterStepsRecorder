@@ -37,7 +37,7 @@ namespace BetterStepsRecorder
             StatusManager.Initialize(this);
 
             // Show initial ready message using the global manager
-            StatusManager.ShowMessage("Ready to record steps");
+            StatusManager.ShowMessage("就绪，可以开始录制");
         }
 
         private void InitializeTrayIcon()
@@ -54,7 +54,7 @@ namespace BetterStepsRecorder
                 {
                     Hide();
                     notifyIcon.Visible = true;
-                    StatusManager.ShowMessage("Minimized to system tray");
+                    StatusManager.ShowMessage("已最小化到系统托盘");
                 }
             }
         }
@@ -101,14 +101,6 @@ namespace BetterStepsRecorder
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.SaveRecordEvents();
-        }
-
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (var settingsForm = new UI.Settings.Settings())
-            {
-                settingsForm.ShowDialog(this);
-            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 
         private void InitializeComponents()
         {
-            this.Text = "Select Folder in Obsidian Vault";
+            this.Text = "选择 Obsidian 仓库中的文件夹";
             this.Size = new Size(500, 400);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -55,7 +55,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
             // Buttons
             okButton = new Button
             {
-                Text = "OK",
+                Text = "确定",
                 DialogResult = DialogResult.OK,
                 Location = new Point(316, 327),
                 Size = new Size(75, 23)
@@ -64,7 +64,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 
             cancelButton = new Button
             {
-                Text = "Cancel",
+                Text = "取消",
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(397, 327),
                 Size = new Size(75, 23)
@@ -73,7 +73,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 
             newFolderButton = new Button
             {
-                Text = "New Folder",
+                Text = "新建文件夹",
                 Location = new Point(12, 327),
                 Size = new Size(100, 23)
             };
@@ -149,7 +149,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
                     if (hasVisibleSubdirs)
                     {
                         // Add a dummy node to show the expand icon
-                        dirNode.Nodes.Add(new TreeNode("Loading...") { Tag = "dummy" });
+                        dirNode.Nodes.Add(new TreeNode("加载中…") { Tag = "dummy" });
                     }
                 }
             }
@@ -159,7 +159,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error accessing directory: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"访问目录失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -190,16 +190,16 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
             {
                 prompt.Width = 300;
                 prompt.Height = 150;
-                prompt.Text = "New Folder";
+                prompt.Text = "新建文件夹";
                 prompt.StartPosition = FormStartPosition.CenterParent;
                 prompt.FormBorderStyle = FormBorderStyle.FixedDialog;
                 prompt.MaximizeBox = false;
                 prompt.MinimizeBox = false;
 
-                Label textLabel = new Label() { Left = 20, Top = 20, Width = 260, Text = "Enter folder name:" };
+                Label textLabel = new Label() { Left = 20, Top = 20, Width = 260, Text = "请输入文件夹名称：" };
                 TextBox textBox = new TextBox() { Left = 20, Top = 50, Width = 260 };
-                Button confirmation = new Button() { Text = "OK", Left = 120, Width = 75, Top = 80 };
-                Button cancel = new Button() { Text = "Cancel", Left = 205, Width = 75, Top = 80 };
+                Button confirmation = new Button() { Text = "确定", Left = 120, Width = 75, Top = 80 };
+                Button cancel = new Button() { Text = "取消", Left = 205, Width = 75, Top = 80 };
 
                 confirmation.Click += (s, ev) => { prompt.DialogResult = DialogResult.OK; prompt.Close(); };
                 cancel.Click += (s, ev) => { prompt.DialogResult = DialogResult.Cancel; prompt.Close(); };

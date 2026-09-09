@@ -12,14 +12,7 @@ namespace BetterStepsRecorder.Exporters
         private static string HtmlEncode(string value) =>
             value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
 
-        private static string FormatDuration(TimeSpan ts)
-        {
-            if (ts.TotalHours >= 1)
-                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
-            if (ts.TotalMinutes >= 1)
-                return $"{ts.Minutes}m {ts.Seconds:D2}s";
-            return $"{ts.Seconds}s";
-        }
+        private static string FormatDuration(TimeSpan ts) => ExportText.FormatDuration(ts);
 
         /// <summary>
         /// Exports the current steps recording to HTML format
@@ -53,7 +46,7 @@ namespace BetterStepsRecorder.Exporters
                 string title = Path.GetFileNameWithoutExtension(filePath);
 
                 int totalSteps = Program._recordEvents.Count;
-                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+                string generated = ExportText.GeneratedAt(DateTime.Now);
 
                 // Compute recording start/end/duration from event timestamps
                 DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
@@ -62,21 +55,21 @@ namespace BetterStepsRecorder.Exporters
                     ? recordingEnd.Value - recordingStart.Value
                     : TimeSpan.Zero;
 
-                string startStr    = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string startStr    = recordingStart.HasValue ? ExportText.FormatDateTime(recordingStart.Value) : "—";
                 string endStr      = recordingEnd?.ToString("HH:mm:ss") ?? "—";
                 string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
                 // Start building the HTML content
                 StringBuilder html = new StringBuilder();
                 html.AppendLine("<!DOCTYPE html>");
-                html.AppendLine("<html lang=\"en\">");
+                html.AppendLine("<html lang=\"zh-CN\">");
                 html.AppendLine("<head>");
                 html.AppendLine("    <meta charset=\"UTF-8\">");
                 html.AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
                 html.AppendLine($"    <title>{title}</title>");
                 html.AppendLine("    <style>");
                 html.AppendLine("        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }");
-                html.AppendLine("        body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }");
+                html.AppendLine("        body { font-family: 'Microsoft YaHei UI', 'Segoe UI', system-ui, Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }");
                 html.AppendLine("        .page-header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; padding: 48px 40px 40px; }");
                 html.AppendLine("        .page-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }");
                 html.AppendLine("        .page-header .meta { font-size: 0.85rem; opacity: 0.65; }");
@@ -117,15 +110,15 @@ namespace BetterStepsRecorder.Exporters
                 html.AppendLine($"        <h1>{HtmlEncode(title)}</h1>");
 
                 if (cfg.ShowGeneratedDate)
-                    html.AppendLine($"        <div class=\"meta\">Generated {generated}</div>");
+                    html.AppendLine($"        <div class=\"meta\">{generated}</div>");
 
                 if (cfg.ShowSummary)
                 {
                     html.AppendLine("        <div class=\"summary-grid\">");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">Steps</div><div class=\"value\">{totalSteps}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">Started</div><div class=\"value\">{startStr}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">Finished</div><div class=\"value\">{endStr}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">Total Duration</div><div class=\"value\">{durationStr}</div></div>");
+                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">步骤数</div><div class=\"value\">{totalSteps}</div></div>");
+                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">开始时间</div><div class=\"value\">{startStr}</div></div>");
+                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">结束时间</div><div class=\"value\">{endStr}</div></div>");
+                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">总耗时</div><div class=\"value\">{durationStr}</div></div>");
                     html.AppendLine("        </div>");
                     html.AppendLine("        <div class=\"progress-bar-wrap\"><div class=\"progress-bar-fill\"></div></div>");
                 }
@@ -142,7 +135,7 @@ namespace BetterStepsRecorder.Exporters
 
                     html.AppendLine("        <div class=\"step-card\">");
                     html.AppendLine("            <div class=\"step-header\">");
-                    html.AppendLine($"                <span class=\"step-badge\">Step {recordEvent.Step}</span>");
+                    html.AppendLine($"                <span class=\"step-badge\">步骤 {recordEvent.Step}</span>");
                     html.AppendLine("                <div class=\"step-header-text\">");
                     html.AppendLine($"                    <div class=\"step-title\">{stepText}</div>");
 
@@ -170,13 +163,13 @@ namespace BetterStepsRecorder.Exporters
                     if (!cfg.IsDetailStripEmpty)
                     {
                         html.AppendLine("            <div class=\"step-details\">");
-                        if (cfg.ShowAction)      AppendDetail(html, "Action",        recordEvent.EventType);
-                        if (cfg.ShowApplication) AppendDetail(html, "Application",   recordEvent.ApplicationName);
-                        if (cfg.ShowWindow)      AppendDetail(html, "Window",         recordEvent.WindowTitle);
-                        if (cfg.ShowElement)     AppendDetail(html, "Element",        recordEvent.ElementName);
-                        if (cfg.ShowElementType) AppendDetail(html, "Element Type",   recordEvent.ElementType);
+                        if (cfg.ShowAction)      AppendDetail(html, ExportText.ActionLabel,        ExportText.ActionOf(recordEvent));
+                        if (cfg.ShowApplication) AppendDetail(html, ExportText.ApplicationLabel,   recordEvent.ApplicationName);
+                        if (cfg.ShowWindow)      AppendDetail(html, ExportText.WindowLabel,         recordEvent.WindowTitle);
+                        if (cfg.ShowElement)     AppendDetail(html, ExportText.ElementLabel,        recordEvent.ElementName);
+                        if (cfg.ShowElementType) AppendDetail(html, ExportText.ElementTypeLabel,   recordEvent.ElementType);
                         if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
-                            AppendDetail(html, "Mouse Position", $"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}");
+                            AppendDetail(html, ExportText.MousePositionLabel, $"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}");
                         html.AppendLine("            </div>");
                     }
 
@@ -189,12 +182,12 @@ namespace BetterStepsRecorder.Exporters
 
                         if (SaveImageFromEvent(recordEvent, imageFilePath))
                         {
-                            html.AppendLine($"                <img src=\"images/{imageFileName}\" alt=\"Screenshot for Step {recordEvent.Step}\" onclick=\"openLb(this)\">");
+                            html.AppendLine($"                <img src=\"images/{imageFileName}\" alt=\"步骤 {recordEvent.Step} 截图\" onclick=\"openLb(this)\">");
                         }
                     }
                     else
                     {
-                        html.AppendLine("                <span class=\"no-screenshot\">No screenshot captured for this step.</span>");
+                        html.AppendLine("                <span class=\"no-screenshot\">此步骤没有截图。</span>");
                     }
 
                     html.AppendLine("            </div>");
@@ -207,7 +200,7 @@ namespace BetterStepsRecorder.Exporters
                 html.AppendLine("    <div id=\"lb-overlay\" onclick=\"closeLb()\"><img id=\"lb-img\" src=\"\" alt=\"\"></div>");
 
                 html.AppendLine("    <div class=\"footer\">");
-                html.AppendLine("        Generated with <a href=\"https://github.com/Mentaleak/BetterStepsRecorder\" target=\"_blank\">Better Steps Recorder</a>");
+                html.AppendLine($"        {ExportText.GeneratedWithPrefix}<a href=\"{ExportText.AppLinkUrl}\" target=\"_blank\">{ExportText.AppLinkText}</a>{ExportText.GeneratedWithSuffix}");
                 html.AppendLine("    </div>");
 
                 // Lightweight lightbox script — no dependencies
@@ -232,7 +225,7 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                ShowExportError("Error exporting to HTML", ex);
+                ShowExportError("导出 HTML 失败", ex);
                 return false;
             }
         }

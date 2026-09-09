@@ -75,7 +75,6 @@
             exportToPdfToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             recordingSettingsToolStripMenuItem = new ToolStripMenuItem();
-            settingsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             notifyIcon = new NotifyIcon(components);
             notifyIconContextMenu = new ContextMenuStrip(components);
@@ -383,7 +382,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording, recordingSettingsToolStripMenuItem, settingsToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording, recordingSettingsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Padding = new Padding(7, 3, 0, 3);
@@ -518,16 +517,9 @@
             // 
             recordingSettingsToolStripMenuItem.Name = "recordingSettingsToolStripMenuItem";
             recordingSettingsToolStripMenuItem.Size = new Size(80, 24);
-            recordingSettingsToolStripMenuItem.Text = "录制设置";
+            recordingSettingsToolStripMenuItem.Text = "设置";
             recordingSettingsToolStripMenuItem.Click += recordingSettingsToolStripMenuItem_Click;
-            // 
-            // settingsToolStripMenuItem
-            // 
-            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(80, 24);
-            settingsToolStripMenuItem.Text = "高级设置";
-            settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
-            // 
+            //
             // helpToolStripMenuItem
             // 
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
@@ -630,7 +622,6 @@
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem exportToObsidianVaultToolStripMenuItem;
-        private ToolStripMenuItem settingsToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
         private ToolStripButton selectToolStripButton;
         private ToolStripButton undoToolStripButton;

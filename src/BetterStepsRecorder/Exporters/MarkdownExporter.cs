@@ -9,14 +9,7 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class MarkdownExporter : ExporterBase
     {
-        private static string FormatDuration(TimeSpan ts)
-        {
-            if (ts.TotalHours >= 1)
-                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
-            if (ts.TotalMinutes >= 1)
-                return $"{ts.Minutes}m {ts.Seconds:D2}s";
-            return $"{ts.Seconds}s";
-        }
+        private static string FormatDuration(TimeSpan ts) => ExportText.FormatDuration(ts);
 
         /// <summary>
         /// Exports the current steps recording to Markdown format
@@ -51,7 +44,7 @@ namespace BetterStepsRecorder.Exporters
                 }
 
                 int totalSteps = Program._recordEvents.Count;
-                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+                string generated = ExportText.GeneratedAt(DateTime.Now);
 
                 // Compute recording start/end/duration from event timestamps
                 DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
@@ -60,7 +53,7 @@ namespace BetterStepsRecorder.Exporters
                     ? recordingEnd.Value - recordingStart.Value
                     : TimeSpan.Zero;
 
-                string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string startStr = recordingStart.HasValue ? ExportText.FormatDateTime(recordingStart.Value) : "—";
                 string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
                 string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
@@ -74,26 +67,26 @@ namespace BetterStepsRecorder.Exporters
                 // Generated date
                 if (cfg.ShowGeneratedDate)
                 {
-                    md.AppendLine($"*Generated {generated}*");
+                    md.AppendLine($"*{generated}*");
                     md.AppendLine();
                 }
 
                 // Summary section
                 if (cfg.ShowSummary)
                 {
-                    md.AppendLine("## Summary");
+                    md.AppendLine("## 摘要");
                     md.AppendLine();
-                    md.AppendLine("| Property | Value |");
+                    md.AppendLine("| 项目 | 值 |");
                     md.AppendLine("|----------|-------|");
-                    md.AppendLine($"| Steps | {totalSteps} |");
-                    md.AppendLine($"| Started | {startStr} |");
-                    md.AppendLine($"| Finished | {endStr} |");
-                    md.AppendLine($"| Duration | {durationStr} |");
+                    md.AppendLine($"| 步骤数 | {totalSteps} |");
+                    md.AppendLine($"| 开始时间 | {startStr} |");
+                    md.AppendLine($"| 结束时间 | {endStr} |");
+                    md.AppendLine($"| 总耗时 | {durationStr} |");
                     md.AppendLine();
                 }
 
                 // Steps section
-                md.AppendLine("## Steps");
+                md.AppendLine("## 步骤");
                 md.AppendLine();
 
                 // Add each step
@@ -103,7 +96,7 @@ namespace BetterStepsRecorder.Exporters
                     string stepText = recordEvent._StepText ?? string.Empty;
 
                     // Step header
-                    md.AppendLine($"### Step {recordEvent.Step}");
+                    md.AppendLine($"### 步骤 {recordEvent.Step}");
                     md.AppendLine();
                     md.AppendLine($"**{stepText}**");
                     md.AppendLine();
@@ -129,20 +122,20 @@ namespace BetterStepsRecorder.Exporters
                     // Detail table - only rendered when at least one detail option is on
                     if (!cfg.IsDetailTableEmpty)
                     {
-                        md.AppendLine("| Detail | Value |");
+                        md.AppendLine("| 明细 | 值 |");
                         md.AppendLine("|--------|-------|");
                         if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
-                            md.AppendLine($"| Action | {recordEvent.EventType} |");
+                            md.AppendLine($"| 操作 | {ExportText.ActionOf(recordEvent)} |");
                         if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
-                            md.AppendLine($"| Application | {recordEvent.ApplicationName} |");
+                            md.AppendLine($"| 应用程序 | {recordEvent.ApplicationName} |");
                         if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
-                            md.AppendLine($"| Window | {recordEvent.WindowTitle} |");
+                            md.AppendLine($"| 窗口 | {recordEvent.WindowTitle} |");
                         if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
-                            md.AppendLine($"| Element | {recordEvent.ElementName} |");
+                            md.AppendLine($"| 元素 | {recordEvent.ElementName} |");
                         if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
-                            md.AppendLine($"| Element Type | {recordEvent.ElementType} |");
+                            md.AppendLine($"| 元素类型 | {recordEvent.ElementType} |");
                         if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
-                            md.AppendLine($"| Mouse Position | {recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y} |");
+                            md.AppendLine($"| 鼠标位置 | {recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y} |");
                         md.AppendLine();
                     }
 
@@ -154,13 +147,13 @@ namespace BetterStepsRecorder.Exporters
 
                         if (SaveImageFromEvent(recordEvent, imageFilePath))
                         {
-                            md.AppendLine($"![Step {recordEvent.Step} Screenshot]({imagesFolderName}/{imageFileName})");
+                            md.AppendLine($"![步骤 {recordEvent.Step} 截图]({imagesFolderName}/{imageFileName})");
                             md.AppendLine();
                         }
                     }
                     else
                     {
-                        md.AppendLine("*No screenshot captured for this step.*");
+                        md.AppendLine("*此步骤没有截图。*");
                         md.AppendLine();
                     }
 
@@ -176,7 +169,7 @@ namespace BetterStepsRecorder.Exporters
                 md.AppendLine();
                 md.AppendLine("---");
                 md.AppendLine();
-                md.AppendLine("*Generated with [Better Steps Recorder](https://github.com/Mentaleak/BetterStepsRecorder)*");
+                md.AppendLine($"*{ExportText.GeneratedWithPrefix}[{ExportText.AppLinkText}]({ExportText.AppLinkUrl}){ExportText.GeneratedWithSuffix}*");
 
                 // Write the Markdown file
                 using (var writer = new StreamWriter(filePath, append: false, encoding: Encoding.UTF8))
@@ -189,7 +182,7 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                ShowExportError("Error exporting to Markdown", ex);
+                ShowExportError("导出 Markdown 失败", ex);
                 return false;
             }
         }

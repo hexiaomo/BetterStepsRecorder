@@ -31,11 +31,11 @@ build.cmd
 ## 使用流程
 
 1. 打开 `StepRecorder.exe`
-2. 菜单 **录制设置** 中选择截图区域、是否叠加指针与文字框
+2. 菜单 **设置** 中调整截图区域、鼠标指针、提示文字框、拖拽截图、导出选项（统一的中文设置面板，支持导入/导出/恢复默认）
 3. 点击右上角 **开始录制**，窗口会自动最小化
 4. 在屏幕上按鼠标（建议只点要记录的步骤），每次点击自动截图
 5. 回到主窗口：可拖拽重排步骤、对单张截图做标注
-6. 菜单 **导出** → 选择「合成一张长图 / 多张图片（按步骤编号）/ PDF 文档」
+6. 菜单 **导出** → 选择「合成一张长图 / 多张图片（按步骤编号）/ PDF 文档 / 其他格式」
 
 ## 草稿与续录
 
@@ -67,8 +67,8 @@ StepRecorder/
 │   │   └── MiniPdfWriter.cs       # 零依赖 PDF 写入器
 │   ├── UI/
 │   │   ├── MainForm/              # 主窗体分片
-│   │   ├── Dialogs/RecordingSettingsDialog.cs  # 中文录制设置
-│   │   └── Settings/              # 旧的高级设置
+│   │   ├── Dialogs/RecordingSettingsDialog.cs  # 统一的中文设置对话框
+│   │   └── Dialogs/Obsidian/      # Obsidian 导出对话框
 │   └── MainForm.Designer.cs
 ├── dist/StepRecorder.exe          # 构建产物
 └── build.cmd

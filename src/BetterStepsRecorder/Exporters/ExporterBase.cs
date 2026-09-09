@@ -60,9 +60,9 @@ namespace BetterStepsRecorder.Exporters
         private void ReportImageError(Exception ex)
         {
             if (StatusManager.IsInitialized)
-                StatusManager.ShowMessage($"Error saving image: {ex.Message}", true);
+                StatusManager.ShowMessage($"保存图片失败：{ex.Message}", true);
             else
-                MessageBox.Show($"Error saving image: {ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"保存图片失败：{ex.Message}", "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace BetterStepsRecorder.Exporters
                 errorMessage += $": {ex.Message}";
             }
 
-                MessageBox.Show(errorMessage, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(errorMessage, "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         }
 
@@ -102,7 +102,7 @@ namespace BetterStepsRecorder.Exporters
         protected void ShowExportSuccess(string filePath)
         {
             // Use the static StatusManager which will throw an exception if not initialized
-            StatusManager.ShowSuccess($"Successfully exported to: {filePath}");
+            StatusManager.ShowSuccess($"已成功导出到：{filePath}");
         }
     }
 }

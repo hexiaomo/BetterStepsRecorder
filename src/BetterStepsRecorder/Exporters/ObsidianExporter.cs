@@ -14,14 +14,7 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class ObsidianExporter : ExporterBase
     {
-        private static string FormatDuration(TimeSpan ts)
-        {
-            if (ts.TotalHours >= 1)
-                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
-            if (ts.TotalMinutes >= 1)
-                return $"{ts.Minutes}m {ts.Seconds:D2}s";
-            return $"{ts.Seconds}s";
-        }
+        private static string FormatDuration(TimeSpan ts) => ExportText.FormatDuration(ts);
 
         /// <summary>
         /// Exports the current steps recording to an Obsidian vault
@@ -58,8 +51,8 @@ namespace BetterStepsRecorder.Exporters
                 // Validate Obsidian vault
                 if (!IsValidObsidianVault(vaultPath))
                 {
-                    MessageBox.Show("The selected folder is not a valid Obsidian vault. Please select a folder containing a .obsidian directory.", 
-                        "Invalid Obsidian Vault", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("所选文件夹不是有效的 Obsidian 仓库，请选择包含 .obsidian 目录的文件夹。",
+                        "无效的 Obsidian 仓库", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
 
@@ -83,7 +76,7 @@ namespace BetterStepsRecorder.Exporters
                 }
 
                 int totalSteps = Program._recordEvents.Count;
-                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+                string generated = ExportText.GeneratedAt(DateTime.Now);
 
                 // Compute recording start/end/duration from event timestamps
                 DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
@@ -92,7 +85,7 @@ namespace BetterStepsRecorder.Exporters
                     ? recordingEnd.Value - recordingStart.Value
                     : TimeSpan.Zero;
 
-                string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string startStr = recordingStart.HasValue ? ExportText.FormatDateTime(recordingStart.Value) : "—";
                 string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
                 string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
@@ -109,26 +102,26 @@ namespace BetterStepsRecorder.Exporters
                     // Generated date
                     if (cfg.ShowGeneratedDate)
                     {
-                        writer.WriteLine($"*Generated {generated}*");
+                        writer.WriteLine($"*{generated}*");
                         writer.WriteLine();
                     }
 
                     // Summary section
                     if (cfg.ShowSummary)
                     {
-                        writer.WriteLine("## Summary");
+                        writer.WriteLine("## 摘要");
                         writer.WriteLine();
-                        writer.WriteLine("| Property | Value |");
+                        writer.WriteLine("| 项目 | 值 |");
                         writer.WriteLine("|----------|-------|");
-                        writer.WriteLine($"| Steps | {totalSteps} |");
-                        writer.WriteLine($"| Started | {startStr} |");
-                        writer.WriteLine($"| Finished | {endStr} |");
-                        writer.WriteLine($"| Duration | {durationStr} |");
+                        writer.WriteLine($"| 步骤数 | {totalSteps} |");
+                        writer.WriteLine($"| 开始时间 | {startStr} |");
+                        writer.WriteLine($"| 结束时间 | {endStr} |");
+                        writer.WriteLine($"| 总耗时 | {durationStr} |");
                         writer.WriteLine();
                     }
 
                     // Steps section
-                    writer.WriteLine("## Steps");
+                    writer.WriteLine("## 步骤");
                     writer.WriteLine();
 
                     // Add each step
@@ -138,7 +131,7 @@ namespace BetterStepsRecorder.Exporters
                         string stepText = recordEvent._StepText ?? string.Empty;
 
                         // Step header
-                        writer.WriteLine($"### Step {recordEvent.Step}");
+                        writer.WriteLine($"### 步骤 {recordEvent.Step}");
                         writer.WriteLine();
                         writer.WriteLine($"**{stepText}**");
                         writer.WriteLine();
@@ -164,20 +157,20 @@ namespace BetterStepsRecorder.Exporters
                         // Detail table - only rendered when at least one detail option is on
                         if (!cfg.IsDetailTableEmpty)
                         {
-                            writer.WriteLine("| Detail | Value |");
+                            writer.WriteLine("| 明细 | 值 |");
                             writer.WriteLine("|--------|-------|");
                             if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
-                                writer.WriteLine($"| Action | {recordEvent.EventType} |");
+                                writer.WriteLine($"| 操作 | {ExportText.ActionOf(recordEvent)} |");
                             if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
-                                writer.WriteLine($"| Application | {recordEvent.ApplicationName} |");
+                                writer.WriteLine($"| 应用程序 | {recordEvent.ApplicationName} |");
                             if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
-                                writer.WriteLine($"| Window | {recordEvent.WindowTitle} |");
+                                writer.WriteLine($"| 窗口 | {recordEvent.WindowTitle} |");
                             if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
-                                writer.WriteLine($"| Element | {recordEvent.ElementName} |");
+                                writer.WriteLine($"| 元素 | {recordEvent.ElementName} |");
                             if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
-                                writer.WriteLine($"| Element Type | {recordEvent.ElementType} |");
+                                writer.WriteLine($"| 元素类型 | {recordEvent.ElementType} |");
                             if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
-                                writer.WriteLine($"| Mouse Position | {recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y} |");
+                                writer.WriteLine($"| 鼠标位置 | {recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y} |");
                             writer.WriteLine();
                         }
 
@@ -215,7 +208,7 @@ namespace BetterStepsRecorder.Exporters
                     writer.WriteLine();
                     writer.WriteLine("---");
                     writer.WriteLine();
-                    writer.WriteLine("*Generated with [Better Steps Recorder](https://github.com/Mentaleak/BetterStepsRecorder)*");
+                    writer.WriteLine($"*{ExportText.GeneratedWithPrefix}[{ExportText.AppLinkText}]({ExportText.AppLinkUrl}){ExportText.GeneratedWithSuffix}*");
 
                 }
 
@@ -224,7 +217,7 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                ShowExportError("Error exporting to Obsidian vault", ex);
+                ShowExportError("导出到 Obsidian 仓库失败", ex);
                 return false;
             }
         }

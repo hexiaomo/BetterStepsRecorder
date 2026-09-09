@@ -12,14 +12,7 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class RtfExporter : ExporterBase
     {
-        private static string FormatDuration(TimeSpan ts)
-        {
-            if (ts.TotalHours >= 1)
-                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
-            if (ts.TotalMinutes >= 1)
-                return $"{ts.Minutes}m {ts.Seconds:D2}s";
-            return $"{ts.Seconds}s";
-        }
+        private static string FormatDuration(TimeSpan ts) => ExportText.FormatDuration(ts);
 
         /// <summary>
         /// Exports the current steps recording to RTF format
@@ -45,7 +38,7 @@ namespace BetterStepsRecorder.Exporters
                 string title = Path.GetFileNameWithoutExtension(filePath);
 
                 int totalSteps = Program._recordEvents.Count;
-                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+                string generated = ExportText.GeneratedAt(DateTime.Now);
 
                 // Compute recording start/end/duration from event timestamps
                 DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
@@ -54,20 +47,20 @@ namespace BetterStepsRecorder.Exporters
                     ? recordingEnd.Value - recordingStart.Value
                     : TimeSpan.Zero;
 
-                string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string startStr = recordingStart.HasValue ? ExportText.FormatDateTime(recordingStart.Value) : "—";
                 string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
                 string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
                 using (RichTextBox rtfBox = new RichTextBox())
-                using (var fontBody     = new Font("Segoe UI", 10))
-                using (var fontTitle    = new Font("Segoe UI", 16, FontStyle.Bold))
-                using (var fontMeta     = new Font("Segoe UI", 9))
-                using (var fontStep     = new Font("Segoe UI", 12, FontStyle.Bold))
-                using (var fontDetail   = new Font("Segoe UI", 9))
-                using (var fontDetailLabel = new Font("Segoe UI", 9, FontStyle.Bold))
-                using (var fontSep      = new Font("Segoe UI", 9))
-                using (var fontFooter   = new Font("Segoe UI", 8))
-                using (var fontLink     = new Font("Segoe UI", 8, FontStyle.Underline))
+                using (var fontBody     = new Font("Microsoft YaHei UI", 10))
+                using (var fontTitle    = new Font("Microsoft YaHei UI", 16, FontStyle.Bold))
+                using (var fontMeta     = new Font("Microsoft YaHei UI", 9))
+                using (var fontStep     = new Font("Microsoft YaHei UI", 12, FontStyle.Bold))
+                using (var fontDetail   = new Font("Microsoft YaHei UI", 9))
+                using (var fontDetailLabel = new Font("Microsoft YaHei UI", 9, FontStyle.Bold))
+                using (var fontSep      = new Font("Microsoft YaHei UI", 9))
+                using (var fontFooter   = new Font("Microsoft YaHei UI", 8))
+                using (var fontLink     = new Font("Microsoft YaHei UI", 8, FontStyle.Underline))
                 {
                     // Set document properties
                     rtfBox.Font = fontBody;
@@ -81,7 +74,7 @@ namespace BetterStepsRecorder.Exporters
                     {
                         rtfBox.SelectionFont = fontMeta;
                         rtfBox.SelectionColor = Color.Gray;
-                        rtfBox.AppendText($"Generated {generated}\n");
+                        rtfBox.AppendText($"{generated}\n");
                         rtfBox.SelectionColor = rtfBox.ForeColor;
                     }
 
@@ -91,12 +84,12 @@ namespace BetterStepsRecorder.Exporters
                     if (cfg.ShowSummary)
                     {
                         rtfBox.SelectionFont = fontDetailLabel;
-                        rtfBox.AppendText("Summary\n");
+                        rtfBox.AppendText("摘要\n");
                         rtfBox.SelectionFont = fontDetail;
-                        rtfBox.AppendText($"Steps: {totalSteps}\n");
-                        rtfBox.AppendText($"Started: {startStr}\n");
-                        rtfBox.AppendText($"Finished: {endStr}\n");
-                        rtfBox.AppendText($"Duration: {durationStr}\n");
+                        rtfBox.AppendText($"步骤数：{totalSteps}\n");
+                        rtfBox.AppendText($"开始时间：{startStr}\n");
+                        rtfBox.AppendText($"结束时间：{endStr}\n");
+                        rtfBox.AppendText($"总耗时：{durationStr}\n");
                         rtfBox.AppendText("\n");
                     }
 
@@ -106,7 +99,7 @@ namespace BetterStepsRecorder.Exporters
                     {
                         // Add step header
                         rtfBox.SelectionFont = fontStep;
-                        rtfBox.AppendText($"Step {recordEvent.Step}: {recordEvent._StepText}\n");
+                        rtfBox.AppendText($"步骤 {recordEvent.Step}：{recordEvent._StepText}\n");
 
                         // Add timestamp
                         if (cfg.ShowStepTimestamps)
@@ -135,42 +128,42 @@ namespace BetterStepsRecorder.Exporters
                             if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Action: ");
+                                rtfBox.AppendText("操作：");
                                 rtfBox.SelectionFont = fontDetail;
-                                rtfBox.AppendText($"{recordEvent.EventType}\n");
+                                rtfBox.AppendText($"{ExportText.ActionOf(recordEvent)}\n");
                             }
                             if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Application: ");
+                                rtfBox.AppendText("应用程序：");
                                 rtfBox.SelectionFont = fontDetail;
                                 rtfBox.AppendText($"{recordEvent.ApplicationName}\n");
                             }
                             if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Window: ");
+                                rtfBox.AppendText("窗口：");
                                 rtfBox.SelectionFont = fontDetail;
                                 rtfBox.AppendText($"{recordEvent.WindowTitle}\n");
                             }
                             if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Element: ");
+                                rtfBox.AppendText("元素：");
                                 rtfBox.SelectionFont = fontDetail;
                                 rtfBox.AppendText($"{recordEvent.ElementName}\n");
                             }
                             if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Element Type: ");
+                                rtfBox.AppendText("元素类型：");
                                 rtfBox.SelectionFont = fontDetail;
                                 rtfBox.AppendText($"{recordEvent.ElementType}\n");
                             }
                             if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
                             {
                                 rtfBox.SelectionFont = fontDetailLabel;
-                                rtfBox.AppendText("Mouse Position: ");
+                                rtfBox.AppendText("鼠标位置：");
                                 rtfBox.SelectionFont = fontDetail;
                                 rtfBox.AppendText($"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}\n");
                             }
@@ -201,17 +194,17 @@ namespace BetterStepsRecorder.Exporters
                     rtfBox.SelectionAlignment = HorizontalAlignment.Center;
                     rtfBox.AppendText("\n");
                     rtfBox.SelectionFont = fontFooter;
-                    rtfBox.AppendText("Generated with ");
+                    rtfBox.AppendText(ExportText.GeneratedWithPrefix);
 
                     // Add the hyperlink text
                     rtfBox.SelectionColor = Color.Blue;
                     rtfBox.SelectionFont = fontLink;
-                    rtfBox.AppendText("Better Steps Recorder");
+                    rtfBox.AppendText(ExportText.AppLinkText + ExportText.GeneratedWithSuffix);
 
                     // Add the URL in parentheses
                     rtfBox.SelectionFont = fontFooter;
                     rtfBox.SelectionColor = rtfBox.ForeColor;
-                    rtfBox.AppendText(" (https://github.com/Mentaleak/BetterStepsRecorder)");
+                    rtfBox.AppendText($" ({ExportText.AppLinkUrl})");
 
                     // Save the RTF file
                     rtfBox.SaveFile(filePath);
@@ -222,7 +215,7 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                ShowExportError("Error exporting to RTF", ex);
+                ShowExportError("导出 RTF 失败", ex);
                 return false;
             }
         }

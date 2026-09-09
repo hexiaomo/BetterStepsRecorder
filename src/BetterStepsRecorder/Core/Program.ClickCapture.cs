@@ -125,14 +125,7 @@ namespace BetterStepsRecorder
         /// <summary>把事件类型翻译成中文步骤描述。</summary>
         public static string DescribeClick(string? appName, string clickType, string? elementType, string? elementName)
         {
-            string cn = clickType switch
-            {
-                "Left Click" => "左键点击",
-                "Right Click" => "右键点击",
-                "Middle Click" => "中键点击",
-                "Drag" => "拖拽到",
-                _ => clickType
-            };
+            string cn = EventTypeToChinese(clickType);
 
             if (!string.IsNullOrWhiteSpace(elementName))
                 return $"在 {appName} 中{cn}「{elementName}」";
@@ -140,6 +133,16 @@ namespace BetterStepsRecorder
                 return $"在 {appName} 中{cn} {elementType}";
             return $"在 {appName} 中{cn}";
         }
+
+        /// <summary>把事件类型（Left Click / Drag 等）翻译成中文，导出时显示用。</summary>
+        public static string EventTypeToChinese(string? eventType) => eventType switch
+        {
+            "Left Click" => "左键点击",
+            "Right Click" => "右键点击",
+            "Middle Click" => "中键点击",
+            "Drag" => "拖拽到",
+            _ => eventType ?? string.Empty
+        };
 
         /// <summary>
         /// 统一处理一次鼠标点击：截图（原始图，不叠加任何标记）→ 建立步骤 → 登记。

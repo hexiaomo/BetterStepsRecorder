@@ -22,7 +22,7 @@ namespace BetterStepsRecorder
             }
             
             // Default if no file is loaded
-            return "Steps Recording";
+            return "步骤记录";
         }
 
         /// <summary>

@@ -26,7 +26,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
         /// <param name="defaultName">The default file name to display</param>
         /// <param name="title">The title of the dialog</param>
         /// <param name="prompt">The prompt text to display</param>
-        public FileNamePrompt(string defaultName = "BSR Export", string title = "Enter File Name", string prompt = "Enter a name for your file (without extension):")
+        public FileNamePrompt(string defaultName = "BSR Export", string title = "输入文件名", string prompt = "请输入文件名（不含扩展名）：")
         {
             InitializeComponents(defaultName, title, prompt);
         }
@@ -61,7 +61,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 
             okButton = new Button()
             {
-                Text = "OK",
+                Text = "确定",
                 Left = 200,
                 Width = 80,
                 Top = 80,
@@ -70,7 +70,7 @@ namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 
             cancelButton = new Button()
             {
-                Text = "Cancel",
+                Text = "取消",
                 Left = 300,
                 Width = 80,
                 Top = 80,

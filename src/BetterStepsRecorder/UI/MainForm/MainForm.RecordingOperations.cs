@@ -69,7 +69,7 @@ namespace BetterStepsRecorder
         private void activityTimer_Tick(object? sender, EventArgs e)
         {
             Program.SaveRecordEvents();
-            StatusManager.ShowSuccess($"Data Saved");
+            StatusManager.ShowSuccess("数据已保存");
             activityTimer.Stop();
         }
 

@@ -247,9 +247,11 @@ namespace BetterStepsRecorder
                                         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Could not read element ControlType: {ex.Message}"); }
                                     }
 
-                                    string stepText = $"In {app}, Drag from ({ds.X},{ds.Y}) to ({de.X},{de.Y})";
-                                    if (!string.IsNullOrEmpty(elementName))
-                                        stepText = $"In {app}, Drag to {elementType} {elementName}";
+                                    string stepText;
+                                    if (!string.IsNullOrWhiteSpace(elementName) || !string.IsNullOrWhiteSpace(elementType))
+                                        stepText = DescribeClick(app, "Drag", elementType, elementName);
+                                    else
+                                        stepText = $"在 {app} 中从 ({ds.X},{ds.Y}) 拖拽到 ({de.X},{de.Y})";
 
                                     RecordEvent recordEvent;
                                     lock (_recordEventsLock)
@@ -421,7 +423,7 @@ namespace BetterStepsRecorder
                                             ElementType        = elementType,
                                             MouseCoordinates   = new POINT { X = cp.X, Y = cp.Y },
                                             EventType          = ct,
-                                            _StepText          = $"In {appName}, {ct} on {elementType} {elementName}",
+                                            _StepText          = DescribeClick(appName, ct, elementType, elementName),
                                             Step               = _recordEvents.Count + 1
                                         };
                                         _recordEvents.Add(recordEvent);
@@ -544,7 +546,7 @@ namespace BetterStepsRecorder
                                         ElementType        = elementType,
                                         MouseCoordinates   = new POINT { X = cp.X, Y = cp.Y },
                                         EventType          = ct,
-                                        _StepText          = $"In {appName}, {ct} on {elementType} {elementName}",
+                                        _StepText          = DescribeClick(appName, ct, elementType, elementName),
                                         Step               = _recordEvents.Count + 1
                                     };
                                     _recordEvents.Add(recordEvent);

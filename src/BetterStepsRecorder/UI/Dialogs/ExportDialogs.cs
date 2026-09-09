@@ -24,12 +24,12 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>The selected file path, or null if canceled</returns>
-        public static string ShowRtfSaveDialog(string defaultFileName = "Steps Recording")
+        public static string ShowRtfSaveDialog(string defaultFileName = "步骤记录")
         {
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
-                saveDialog.Filter = "Rich Text Format (*.rtf)|*.rtf";
-                saveDialog.Title = "Save Steps as RTF";
+                saveDialog.Filter = "RTF 文档 (*.rtf)|*.rtf";
+                saveDialog.Title = "导出 RTF 文档";
                 saveDialog.DefaultExt = "rtf";
                 saveDialog.FileName = $"{defaultFileName}.rtf";
 
@@ -46,12 +46,12 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>The selected file path, or null if canceled</returns>
-        public static string ShowHtmlSaveDialog(string defaultFileName = "Steps Recording")
+        public static string ShowHtmlSaveDialog(string defaultFileName = "步骤记录")
         {
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
-                saveDialog.Filter = "HTML Files (*.html)|*.html";
-                saveDialog.Title = "Save Steps as HTML";
+                saveDialog.Filter = "HTML 文件 (*.html)|*.html";
+                saveDialog.Title = "导出 HTML";
                 saveDialog.DefaultExt = "html";
                 saveDialog.FileName = $"{defaultFileName}.html";
 
@@ -68,12 +68,12 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>The selected file path, or null if canceled</returns>
-        public static string ShowMarkdownSaveDialog(string defaultFileName = "Steps Recording")
+        public static string ShowMarkdownSaveDialog(string defaultFileName = "步骤记录")
         {
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
-                saveDialog.Filter = "Markdown Files (*.md)|*.md";
-                saveDialog.Title = "Save Steps as Markdown";
+                saveDialog.Filter = "Markdown 文件 (*.md)|*.md";
+                saveDialog.Title = "导出 Markdown";
                 saveDialog.DefaultExt = "md";
                 saveDialog.FileName = $"{defaultFileName}.md";
 
@@ -90,12 +90,12 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>The selected file path, or null if canceled</returns>
-        public static string ShowOdtSaveDialog(string defaultFileName = "Steps Recording")
+        public static string ShowOdtSaveDialog(string defaultFileName = "步骤记录")
         {
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
-                saveDialog.Filter = "OpenDocument Text (*.odt)|*.odt";
-                saveDialog.Title = "Save Steps as ODT";
+                saveDialog.Filter = "ODT 文档 (*.odt)|*.odt";
+                saveDialog.Title = "导出 ODT 文档";
                 saveDialog.DefaultExt = "odt";
                 saveDialog.FileName = $"{defaultFileName}.odt";
 
@@ -167,7 +167,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultName">The default file name to display</param>
         /// <returns>The file name entered by the user, or null if canceled</returns>
-        public static string PromptForFileName(string defaultName = "BSR Export")
+        public static string PromptForFileName(string defaultName = "步骤记录")
         {
             return FileNamePrompt.PromptForFileName(defaultName);
         }
@@ -177,7 +177,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>True if export was successful, false otherwise</returns>
-        public static bool HandleObsidianExport(string defaultFileName = "Steps Recording")
+        public static bool HandleObsidianExport(string defaultFileName = "步骤记录")
         {
             // Select Obsidian vault
             string vaultPath = SelectObsidianVault();
@@ -202,7 +202,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>True if export was successful, false otherwise</returns>
-        public static bool HandleHtmlExport(string defaultFileName = "Steps Recording")
+        public static bool HandleHtmlExport(string defaultFileName = "步骤记录")
         {
             string filePath = ShowHtmlSaveDialog(defaultFileName);
             if (string.IsNullOrEmpty(filePath))
@@ -222,7 +222,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>True if export was successful, false otherwise</returns>
-        public static bool HandleRtfExport(string defaultFileName = "Steps Recording")
+        public static bool HandleRtfExport(string defaultFileName = "步骤记录")
         {
             string filePath = ShowRtfSaveDialog(defaultFileName);
             if (string.IsNullOrEmpty(filePath))
@@ -237,7 +237,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>True if export was successful, false otherwise</returns>
-        public static bool HandleOdtExport(string defaultFileName = "Steps Recording")
+        public static bool HandleOdtExport(string defaultFileName = "步骤记录")
         {
             string filePath = ShowOdtSaveDialog(defaultFileName);
             if (string.IsNullOrEmpty(filePath))
@@ -252,7 +252,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
         /// <returns>True if export was successful, false otherwise</returns>
-        public static bool HandleMarkdownExport(string defaultFileName = "Steps Recording")
+        public static bool HandleMarkdownExport(string defaultFileName = "步骤记录")
         {
             string filePath = ShowMarkdownSaveDialog(defaultFileName);
             if (string.IsNullOrEmpty(filePath))

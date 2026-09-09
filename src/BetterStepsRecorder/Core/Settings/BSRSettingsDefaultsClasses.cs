@@ -98,7 +98,24 @@ namespace BetterStepsRecorder
         // Export Settings
         // ══════════════════════════════════════════════════════════════════════
 
-        public class HtmlSettings
+        /// <summary>
+        /// HTML / Markdown / RTF / ODT / Obsidian 五种文档导出共有的明细选项。
+        /// 统一设置面板通过该接口读写，无需关心具体格式。
+        /// </summary>
+        public interface IDetailExportSettings
+        {
+            bool ShowSummary { get; set; }
+            bool ShowGeneratedDate { get; set; }
+            bool ShowStepTimestamps { get; set; }
+            bool ShowAction { get; set; }
+            bool ShowApplication { get; set; }
+            bool ShowWindow { get; set; }
+            bool ShowElement { get; set; }
+            bool ShowElementType { get; set; }
+            bool ShowMousePosition { get; set; }
+        }
+
+        public class HtmlSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
@@ -116,7 +133,7 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
-        public class MarkdownSettings
+        public class MarkdownSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
@@ -134,7 +151,7 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
-        public class RtfSettings
+        public class RtfSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
@@ -152,7 +169,7 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
-        public class OdtSettings
+        public class OdtSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
@@ -170,7 +187,7 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
-        public class ObsidianSettings
+        public class ObsidianSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
