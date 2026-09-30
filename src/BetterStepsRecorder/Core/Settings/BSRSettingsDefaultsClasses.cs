@@ -25,6 +25,8 @@ namespace BetterStepsRecorder
             public bool Enabled { get; set; } = true;
 
             public ClickIndicatorStyle Style { get; set; } = ClickIndicatorStyle.Cursor;
+            public int Size { get; set; } = 100;
+            public string CustomImagePath { get; set; } = string.Empty;
 
             [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
             public int Color { get; set; } = -65281; // Color.Magenta.ToArgb() = #FFFF00FF
@@ -35,6 +37,7 @@ namespace BetterStepsRecorder
         {
             public bool Enabled { get; set; } = false;
             public string DefaultText { get; set; } = "点击此";
+            public ClickLabelTextSource DefaultTextSource { get; set; } = ClickLabelTextSource.Fixed;
             public int FontSize { get; set; } = 16;
 
             [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
@@ -292,7 +295,14 @@ namespace BetterStepsRecorder
     {
         Arrow,
         Circle,
-        Cursor
+        Cursor,
+        Custom
+    }
+
+    public enum ClickLabelTextSource
+    {
+        Fixed,
+        StepAction
     }
 
     /// <summary>

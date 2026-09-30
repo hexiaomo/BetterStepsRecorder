@@ -177,6 +177,11 @@ namespace BetterStepsRecorder
                 wasModified = true;
             }
 
+            int originalIndicatorSize = Indicator.Size;
+            Indicator.Size = Math.Clamp(Indicator.Size, 25, 400);
+            wasModified |= Indicator.Size != originalIndicatorSize;
+            Indicator.CustomImagePath ??= string.Empty;
+
             if (!Enum.IsDefined(typeof(ClickScreenshotMode), Screenshot.Click.Mode))
             {
                 Screenshot.Click.Mode = Default.Screenshot.Click.Mode;

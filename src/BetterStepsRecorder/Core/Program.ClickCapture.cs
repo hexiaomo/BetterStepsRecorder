@@ -105,11 +105,13 @@ namespace BetterStepsRecorder
             ov.IndicatorEnabled = ind.Enabled;
             ov.IndicatorStyle = ind.Style;
             ov.IndicatorColorArgb = ind.Color;
+            ov.IndicatorSize = ind.Size;
+            ov.IndicatorCustomImagePath = ind.CustomImagePath;
             ov.IndicatorX = evt.MouseCoordinates.X - evt.CaptureLeft;
             ov.IndicatorY = evt.MouseCoordinates.Y - evt.CaptureTop;
 
             ov.LabelEnabled = lbl.Enabled;
-            ov.LabelText = string.IsNullOrWhiteSpace(lbl.DefaultText) ? "点击此" : lbl.DefaultText;
+            ov.LabelText = GetDefaultLabelText(evt, lbl);
             ov.LabelFontSize = lbl.FontSize;
             ov.LabelBackArgb = lbl.BackColor;
             ov.LabelBorderArgb = lbl.BorderColor;
@@ -120,6 +122,19 @@ namespace BetterStepsRecorder
             ov.LabelHeight = box.Height;
             ov.LabelX = ov.IndicatorX + lbl.OffsetX;
             ov.LabelY = ov.IndicatorY + lbl.OffsetY;
+        }
+
+        private static string GetDefaultLabelText(RecordEvent evt, BSRSettings.ClickLabelSettings settings)
+        {
+            if (settings.DefaultTextSource != ClickLabelTextSource.StepAction)
+                return string.IsNullOrWhiteSpace(settings.DefaultText) ? "点击此" : settings.DefaultText;
+
+            string text = evt._StepText ?? string.Empty;
+            int marker = text.IndexOf('中');
+            if (marker >= 0) text = text[(marker + 1)..];
+            foreach (string prefix in new[] { "左键", "右键", "中键" })
+                if (text.StartsWith(prefix, StringComparison.Ordinal)) text = text[prefix.Length..];
+            return string.IsNullOrWhiteSpace(text) ? "点击此" : text;
         }
 
         /// <summary>把事件类型翻译成中文步骤描述。</summary>

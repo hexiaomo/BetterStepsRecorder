@@ -75,6 +75,8 @@ namespace BetterStepsRecorder
         public bool IndicatorEnabled { get; set; } = true;
         public ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Cursor;
         public int IndicatorColorArgb { get; set; } = Color.FromArgb(255, 255, 0, 255).ToArgb();
+        public int IndicatorSize { get; set; } = 100;
+        public string IndicatorCustomImagePath { get; set; } = string.Empty;
         public int IndicatorX { get; set; }
         public int IndicatorY { get; set; }
 

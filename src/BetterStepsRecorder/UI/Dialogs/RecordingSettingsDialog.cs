@@ -41,10 +41,14 @@ namespace BetterStepsRecorder.UI.Dialogs
         private readonly CheckBox _chkIndicator = new() { Text = "截图时叠加鼠标指针", AutoSize = true };
         private readonly ComboBox _cboStyle = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 140 };
         private readonly Panel _pnlIndicatorColor = new() { BorderStyle = BorderStyle.FixedSingle, Size = new Size(40, 22) };
+        private readonly NumericUpDown _nudIndicatorSize = new() { Minimum = 25, Maximum = 400, Increment = 5, Width = 75 };
+        private readonly TextBox _txtCustomIndicator = new() { Width = 260, ReadOnly = true };
+        private readonly Button _btnCustomIndicator = new() { Text = "选择图片…", AutoSize = true };
 
         // ── 提示文字框 ──────────────────────────────────────────────
         private readonly CheckBox _chkLabel = new() { Text = "自动添加提示文字框", AutoSize = true };
         private readonly TextBox _txtLabel = new() { Width = 160 };
+        private readonly ComboBox _cboLabelTextSource = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 190 };
         private readonly NumericUpDown _nudFontSize = new() { Minimum = 10, Maximum = 48, Increment = 1 };
         private readonly NumericUpDown _nudOffsetX = new() { Minimum = -200, Maximum = 200, Increment = 2 };
         private readonly NumericUpDown _nudOffsetY = new() { Minimum = -200, Maximum = 200, Increment = 2 };
@@ -301,9 +305,13 @@ namespace BetterStepsRecorder.UI.Dialogs
             var page = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
             page.Controls.Add(Title("鼠标指针"));
             page.Controls.Add(_chkIndicator);
-            _cboStyle.Items.AddRange(new object[] { "标准光标", "圆圈", "指示箭头" });
+            _cboStyle.Items.AddRange(new object[] { "标准光标", "圆圈", "指示箭头", "自定义样式" });
+            _cboStyle.SelectedIndexChanged += (_, _) => _btnCustomIndicator.Enabled = _cboStyle.SelectedIndex == 3;
             page.Controls.Add(Row(Label("样式"), _cboStyle, Label("颜色"),
                 ColorPanel(_pnlIndicatorColor, _indicatorColorArgb, v => _indicatorColorArgb = v)));
+            page.Controls.Add(Row(Label("指针大小"), _nudIndicatorSize, Label("%")));
+            _btnCustomIndicator.Click += BtnCustomIndicator_Click;
+            page.Controls.Add(Row(Label("自定义图片"), _txtCustomIndicator, _btnCustomIndicator));
             page.Controls.Add(Hint("提示：录制完成后仍可在草稿中单独移动或删除每一步的指针。"));
             return page;
         }
@@ -313,6 +321,9 @@ namespace BetterStepsRecorder.UI.Dialogs
             var page = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
             page.Controls.Add(Title("点击提示文字框"));
             page.Controls.Add(_chkLabel);
+            _cboLabelTextSource.Items.AddRange(new object[] { "固定默认文字", "使用步骤记录中的文字" });
+            _cboLabelTextSource.SelectedIndexChanged += (_, _) => _txtLabel.Enabled = _cboLabelTextSource.SelectedIndex != 1;
+            page.Controls.Add(Row(Label("默认文字来源"), _cboLabelTextSource));
             page.Controls.Add(Row(Label("默认文字"), _txtLabel, Label("字号"), _nudFontSize));
             page.Controls.Add(Row(Label("背景色"),
                 ColorPanel(_pnlLabelBack, _labelBackArgb, v => _labelBackArgb = v),
@@ -437,14 +448,18 @@ namespace BetterStepsRecorder.UI.Dialogs
             {
                 ClickIndicatorStyle.Circle => 1,
                 ClickIndicatorStyle.Arrow => 2,
+                ClickIndicatorStyle.Custom => 3,
                 _ => 0
             };
             _indicatorColorArgb = s.Indicator.Color;
             _pnlIndicatorColor.BackColor = Color.FromArgb(_indicatorColorArgb);
+            _nudIndicatorSize.Value = Math.Clamp(s.Indicator.Size, 25, 400);
+            _txtCustomIndicator.Text = s.Indicator.CustomImagePath;
 
             // 提示文字框
             _chkLabel.Checked = s.ClickLabel.Enabled;
             _txtLabel.Text = s.ClickLabel.DefaultText;
+            _cboLabelTextSource.SelectedIndex = s.ClickLabel.DefaultTextSource == ClickLabelTextSource.StepAction ? 1 : 0;
             _nudFontSize.Value = s.ClickLabel.FontSize;
             _nudOffsetX.Value = s.ClickLabel.OffsetX;
             _nudOffsetY.Value = s.ClickLabel.OffsetY;
@@ -541,13 +556,17 @@ namespace BetterStepsRecorder.UI.Dialogs
             {
                 1 => ClickIndicatorStyle.Circle,
                 2 => ClickIndicatorStyle.Arrow,
+                3 => ClickIndicatorStyle.Custom,
                 _ => ClickIndicatorStyle.Cursor
             };
             s.Indicator.Color = _indicatorColorArgb;
+            s.Indicator.Size = (int)_nudIndicatorSize.Value;
+            s.Indicator.CustomImagePath = _txtCustomIndicator.Text.Trim();
 
             // 提示文字框
             s.ClickLabel.Enabled = _chkLabel.Checked;
             s.ClickLabel.DefaultText = string.IsNullOrWhiteSpace(_txtLabel.Text) ? "点击此" : _txtLabel.Text.Trim();
+            s.ClickLabel.DefaultTextSource = _cboLabelTextSource.SelectedIndex == 1 ? ClickLabelTextSource.StepAction : ClickLabelTextSource.Fixed;
             s.ClickLabel.FontSize = (int)_nudFontSize.Value;
             s.ClickLabel.OffsetX = (int)_nudOffsetX.Value;
             s.ClickLabel.OffsetY = (int)_nudOffsetY.Value;
@@ -617,6 +636,20 @@ namespace BetterStepsRecorder.UI.Dialogs
             if (dlg.ShowDialog(this) != DialogResult.OK) return;
             _pendingSettingsPath = dlg.FileName;
             _txtSettingsPath.Text = dlg.FileName;
+        }
+
+        private void BtnCustomIndicator_Click(object? sender, EventArgs e)
+        {
+            using var dlg = new OpenFileDialog
+            {
+                Filter = "图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
+                Title = "选择自定义鼠标指针图片"
+            };
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                _txtCustomIndicator.Text = dlg.FileName;
+                _cboStyle.SelectedIndex = 3;
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

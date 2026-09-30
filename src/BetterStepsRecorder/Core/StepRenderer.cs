@@ -233,15 +233,16 @@ namespace BetterStepsRecorder
         {
             int x = ov.IndicatorX, y = ov.IndicatorY;
             Color c = Color.FromArgb(ov.IndicatorColorArgb);
+            float scale = Math.Clamp(ov.IndicatorSize, 25, 400) / 100f;
 
             switch (ov.IndicatorStyle)
             {
                 case ClickIndicatorStyle.Circle:
                 {
-                    int r = 28;
+                    int r = (int)Math.Round(28 * scale);
                     using (var fill = new SolidBrush(Color.FromArgb(60, c)))
                         g.FillEllipse(fill, x - r, y - r, r * 2, r * 2);
-                    using (var border = new Pen(c, 3.5f))
+                    using (var border = new Pen(c, 3.5f * scale))
                         g.DrawEllipse(border, x - r, y - r, r * 2, r * 2);
                     using (var dot = new SolidBrush(c))
                         g.FillEllipse(dot, x - 4, y - 4, 8, 8);
@@ -250,21 +251,39 @@ namespace BetterStepsRecorder
 
                 case ClickIndicatorStyle.Arrow:
                 {
-                    int len = 200;
+                    int len = (int)Math.Round(200 * scale);
                     int endX = x;
                     int endY = y < height / 2 ? y + len : y - len;
                     using var cap = new AdjustableArrowCap(5, 5);
-                    using var pen = new Pen(c, 5f) { CustomEndCap = cap };
+                    using var pen = new Pen(c, 5f * scale) { CustomEndCap = cap };
                     g.DrawLine(pen, endX, endY, x, y);
                     break;
                 }
 
+                case ClickIndicatorStyle.Custom:
+                    if (DrawCustomIndicator(g, ov, x, y, scale)) break;
+                    goto default;
+
                 default: // Cursor
                 {
-                    DrawCursorGlyph(g, x, y, c, 1.0f);
+                    DrawCursorGlyph(g, x, y, c, scale);
                     break;
                 }
             }
+        }
+
+        private static bool DrawCustomIndicator(Graphics g, StepOverlay ov, int x, int y, float scale)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ov.IndicatorCustomImagePath) || !File.Exists(ov.IndicatorCustomImagePath)) return false;
+                using var image = Image.FromFile(ov.IndicatorCustomImagePath);
+                int width = Math.Max(1, (int)Math.Round(image.Width * scale));
+                int height = Math.Max(1, (int)Math.Round(image.Height * scale));
+                g.DrawImage(image, new Rectangle(x, y, width, height));
+                return true;
+            }
+            catch { return false; }
         }
 
         /// <summary>绘制一个标准的鼠标箭头指针（带白色描边，任何底色上都可见）。</summary>
