@@ -113,12 +113,22 @@ namespace BetterStepsRecorder
             bool ShowElement { get; set; }
             bool ShowElementType { get; set; }
             bool ShowMousePosition { get; set; }
+            ExportContentPlacement SummaryPlacement { get; set; }
+            ExportContentPlacement GeneratedDatePlacement { get; set; }
+            bool ShowFooterBranding { get; set; }
+            string FooterText { get; set; }
         }
+
+        public enum ExportContentPlacement { Hidden, Header, Footer }
 
         public class HtmlSettings : IDetailExportSettings
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
+            public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
+            public bool ShowFooterBranding { get; set; } = true;
+            public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -137,6 +147,10 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
+            public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
+            public bool ShowFooterBranding { get; set; } = true;
+            public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -155,6 +169,10 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
+            public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
+            public bool ShowFooterBranding { get; set; } = true;
+            public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -173,6 +191,10 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
+            public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
+            public bool ShowFooterBranding { get; set; } = true;
+            public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -191,6 +213,10 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
+            public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
+            public bool ShowFooterBranding { get; set; } = true;
+            public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;

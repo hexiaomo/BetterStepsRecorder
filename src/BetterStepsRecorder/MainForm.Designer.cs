@@ -55,6 +55,7 @@
             ellipseToolStripButton = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
             cropToolStripButton = new ToolStripButton();
+            batchApplyToolStripButton = new ToolStripButton();
             richTextBox_stepText = new RichTextBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -66,6 +67,7 @@
             exportToFileToolStripMenuItem = new ToolStripMenuItem();
             exportToRtfToolStripMenuItem = new ToolStripMenuItem();
             exportToHtmlToolStripMenuItem = new ToolStripMenuItem();
+            exportToSingleFileHtmlToolStripMenuItem = new ToolStripMenuItem();
             exportToOdtToolStripMenuItem = new ToolStripMenuItem();
             exportToMarkdownToolStripMenuItem = new ToolStripMenuItem();
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
@@ -245,7 +247,7 @@
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { selectToolStripButton, undoToolStripButton, toolStripSeparator2, mosaicToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, rectangleToolStripButton, ellipseToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { selectToolStripButton, undoToolStripButton, toolStripSeparator2, mosaicToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, rectangleToolStripButton, ellipseToolStripButton, toolStripSeparator4, cropToolStripButton, batchApplyToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(648, 27);
@@ -368,6 +370,14 @@
             cropToolStripButton.ToolTipText = "把截图裁剪到选定区域（可撤销）";
             cropToolStripButton.Click += cropToolStripButton_Click;
             // 
+            // batchApplyToolStripButton
+            // 
+            batchApplyToolStripButton.CheckOnClick = true;
+            batchApplyToolStripButton.Name = "batchApplyToolStripButton";
+            batchApplyToolStripButton.Size = new Size(76, 24);
+            batchApplyToolStripButton.Text = "批量应用";
+            batchApplyToolStripButton.ToolTipText = "开启后，马赛克、高亮和裁剪会按相对位置应用到左侧多选的所有步骤";
+            // 
             // richTextBox_stepText
             // 
             richTextBox_stepText.Dock = DockStyle.Fill;
@@ -462,7 +472,7 @@
             // 
             // exportToFileToolStripMenuItem
             // 
-            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToMarkdownToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToSingleFileHtmlToolStripMenuItem, exportToMarkdownToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
             exportToFileToolStripMenuItem.Size = new Size(200, 24);
             exportToFileToolStripMenuItem.Text = "其他格式";
@@ -480,6 +490,13 @@
             exportToHtmlToolStripMenuItem.Size = new Size(180, 24);
             exportToHtmlToolStripMenuItem.Text = "HTML";
             exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
+            // 
+            // exportToSingleFileHtmlToolStripMenuItem
+            // 
+            exportToSingleFileHtmlToolStripMenuItem.Name = "exportToSingleFileHtmlToolStripMenuItem";
+            exportToSingleFileHtmlToolStripMenuItem.Size = new Size(220, 24);
+            exportToSingleFileHtmlToolStripMenuItem.Text = "HTML单文件";
+            exportToSingleFileHtmlToolStripMenuItem.Click += exportToSingleFileHtmlToolStripMenuItem_Click;
             // 
             // exportToOdtToolStripMenuItem
             // 
@@ -612,6 +629,7 @@
         private ToolStripMenuItem exportToFileToolStripMenuItem;
         private ToolStripMenuItem exportToRtfToolStripMenuItem;
         private ToolStripMenuItem exportToHtmlToolStripMenuItem;
+        private ToolStripMenuItem exportToSingleFileHtmlToolStripMenuItem;
         private ToolStripMenuItem exportToOdtToolStripMenuItem;
         private ToolStripMenuItem exportToMarkdownToolStripMenuItem;
         private ContextMenuStrip contextMenu_ListBox_Events;
@@ -637,6 +655,7 @@
         private ToolStripButton ellipseToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
+        private ToolStripButton batchApplyToolStripButton;
         private ToolStripMenuItem openDraftFolderToolStripMenuItem;
         private ToolStripMenuItem exportToLongImageToolStripMenuItem;
         private ToolStripMenuItem exportToImageSequenceToolStripMenuItem;

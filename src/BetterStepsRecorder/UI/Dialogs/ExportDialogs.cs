@@ -217,6 +217,13 @@ namespace BetterStepsRecorder.UI.Dialogs
             return success;
         }
 
+        public static bool HandleSingleFileHtmlExport(string defaultFileName = "步骤记录")
+        {
+            string filePath = ShowHtmlSaveDialog(defaultFileName);
+            if (string.IsNullOrEmpty(filePath)) return false;
+            return new HtmlExporter().ExportSingleFile(filePath);
+        }
+
         /// <summary>
         /// Handles the complete RTF export process including all dialogs
         /// </summary>

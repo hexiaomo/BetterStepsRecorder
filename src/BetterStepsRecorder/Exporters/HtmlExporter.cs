@@ -22,22 +22,24 @@ namespace BetterStepsRecorder.Exporters
         public override bool Export(string filePath)
         {
             var cfg = BSRSettings.Current.ExportOptions.Html;
-            return Export(filePath, cfg);
+            return Export(filePath, cfg, embedImages: false);
         }
+
+        /// <summary>Exports a self-contained HTML document with all screenshots embedded as data URIs.</summary>
+        public bool ExportSingleFile(string filePath) => Export(filePath, BSRSettings.Current.ExportOptions.Html, embedImages: true);
 
         /// <summary>
         /// Exports the current steps recording to HTML format using the supplied settings
         /// </summary>
-        public bool Export(string filePath, BSRSettings.HtmlSettings cfg)
+        public bool Export(string filePath, BSRSettings.HtmlSettings cfg, bool embedImages = false)
         {
             try
             {
                 EnsureDirectoryExists(filePath);
 
-                // Create images folder
                 string folderPath = Path.GetDirectoryName(filePath);
                 string imagesFolder = Path.Combine(folderPath, "images");
-                if (!Directory.Exists(imagesFolder))
+                if (!embedImages && !Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
                 }
@@ -109,17 +111,12 @@ namespace BetterStepsRecorder.Exporters
                 html.AppendLine("    <div class=\"page-header\">");
                 html.AppendLine($"        <h1>{HtmlEncode(title)}</h1>");
 
-                if (cfg.ShowGeneratedDate)
+                if (cfg.ShowGeneratedDate && cfg.GeneratedDatePlacement == BSRSettings.ExportContentPlacement.Header)
                     html.AppendLine($"        <div class=\"meta\">{generated}</div>");
 
-                if (cfg.ShowSummary)
+                if (cfg.ShowSummary && cfg.SummaryPlacement == BSRSettings.ExportContentPlacement.Header)
                 {
-                    html.AppendLine("        <div class=\"summary-grid\">");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">步骤数</div><div class=\"value\">{totalSteps}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">开始时间</div><div class=\"value\">{startStr}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">结束时间</div><div class=\"value\">{endStr}</div></div>");
-                    html.AppendLine($"            <div class=\"summary-item\"><div class=\"label\">总耗时</div><div class=\"value\">{durationStr}</div></div>");
-                    html.AppendLine("        </div>");
+                    AppendSummary(html, totalSteps, startStr, endStr, durationStr, "        ");
                     html.AppendLine("        <div class=\"progress-bar-wrap\"><div class=\"progress-bar-fill\"></div></div>");
                 }
 
@@ -177,12 +174,21 @@ namespace BetterStepsRecorder.Exporters
 
                     if (recordEvent.HasScreenshot)
                     {
-                        string imageFileName = $"step_{recordEvent.Step}_{recordEvent.ShortId}.png";
-                        string imageFilePath = Path.Combine(imagesFolder, imageFileName);
-
-                        if (SaveImageFromEvent(recordEvent, imageFilePath))
+                        string? source = null;
+                        if (embedImages)
                         {
-                            html.AppendLine($"                <img src=\"images/{imageFileName}\" alt=\"步骤 {recordEvent.Step} 截图\" onclick=\"openLb(this)\">");
+                            byte[]? bytes = Program.GetScreenshotBytes(recordEvent);
+                            if (bytes != null) source = "data:image/png;base64," + Convert.ToBase64String(bytes);
+                        }
+                        else
+                        {
+                            string imageFileName = $"step_{recordEvent.Step}_{recordEvent.ShortId}.png";
+                            string imageFilePath = Path.Combine(imagesFolder, imageFileName);
+                            if (SaveImageFromEvent(recordEvent, imageFilePath)) source = "images/" + imageFileName;
+                        }
+                        if (source != null)
+                        {
+                            html.AppendLine($"                <img src=\"{source}\" alt=\"步骤 {recordEvent.Step} 截图\" onclick=\"openLb(this)\">");
                         }
                     }
                     else
@@ -200,7 +206,14 @@ namespace BetterStepsRecorder.Exporters
                 html.AppendLine("    <div id=\"lb-overlay\" onclick=\"closeLb()\"><img id=\"lb-img\" src=\"\" alt=\"\"></div>");
 
                 html.AppendLine("    <div class=\"footer\">");
-                html.AppendLine($"        {ExportText.GeneratedWithPrefix}<a href=\"{ExportText.AppLinkUrl}\" target=\"_blank\">{ExportText.AppLinkText}</a>{ExportText.GeneratedWithSuffix}");
+                if (cfg.ShowSummary && cfg.SummaryPlacement == BSRSettings.ExportContentPlacement.Footer)
+                    AppendSummary(html, totalSteps, startStr, endStr, durationStr, "        ");
+                if (cfg.ShowGeneratedDate && cfg.GeneratedDatePlacement == BSRSettings.ExportContentPlacement.Footer)
+                    html.AppendLine($"        <div>{generated}</div>");
+                if (!string.IsNullOrWhiteSpace(cfg.FooterText))
+                    html.AppendLine($"        <div>{HtmlEncode(cfg.FooterText)}</div>");
+                if (cfg.ShowFooterBranding)
+                    html.AppendLine($"        {ExportText.GeneratedWithPrefix}<a href=\"{ExportText.AppLinkUrl}\" target=\"_blank\">{ExportText.AppLinkText}</a>{ExportText.GeneratedWithSuffix}");
                 html.AppendLine("    </div>");
 
                 // Lightweight lightbox script — no dependencies
@@ -234,6 +247,16 @@ namespace BetterStepsRecorder.Exporters
         {
             if (string.IsNullOrWhiteSpace(value)) return;
             html.AppendLine($"                <div class=\"detail-item\"><div class=\"detail-label\">{HtmlEncode(label)}</div><div class=\"detail-value\">{HtmlEncode(value)}</div></div>");
+        }
+
+        private static void AppendSummary(StringBuilder html, int totalSteps, string start, string end, string duration, string indent)
+        {
+            html.AppendLine(indent + "<div class=\"summary-grid\">");
+            html.AppendLine($"{indent}    <div class=\"summary-item\"><div class=\"label\">步骤数</div><div class=\"value\">{totalSteps}</div></div>");
+            html.AppendLine($"{indent}    <div class=\"summary-item\"><div class=\"label\">开始时间</div><div class=\"value\">{start}</div></div>");
+            html.AppendLine($"{indent}    <div class=\"summary-item\"><div class=\"label\">结束时间</div><div class=\"value\">{end}</div></div>");
+            html.AppendLine($"{indent}    <div class=\"summary-item\"><div class=\"label\">总耗时</div><div class=\"value\">{duration}</div></div>");
+            html.AppendLine(indent + "</div>");
         }
     }
 }

@@ -55,6 +55,12 @@ namespace BetterStepsRecorder
             ExportDialogs.HandleHtmlExport(GetDefaultExportFileName());
         }
 
+        private void exportToSingleFileHtmlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveRecordEvents();
+            ExportDialogs.HandleSingleFileHtmlExport(GetDefaultExportFileName());
+        }
+
         /// <summary>
         /// Handles export to ODT (OpenDocument Text) format
         /// </summary>

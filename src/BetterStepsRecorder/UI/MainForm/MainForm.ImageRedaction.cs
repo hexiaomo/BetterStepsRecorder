@@ -468,8 +468,52 @@ namespace BetterStepsRecorder
                     break;
             }
 
+            if (batchApplyToolStripButton.Checked && Listbox_Events.SelectedItems.Count > 1 &&
+                _activeTool is ImageTool.Mosaic or ImageTool.Highlight or ImageTool.Crop &&
+                rect.Width >= 4 && rect.Height >= 4)
+            {
+                ApplyToOtherSelectedSteps(evt, rect, pictureBox1.Image.Size);
+            }
+
             RefreshCanvas();
             MarkDirty();
+        }
+
+        private void ApplyToOtherSelectedSteps(RecordEvent source, Rectangle sourceRect, Size sourceSize)
+        {
+            foreach (var item in Listbox_Events.SelectedItems)
+            {
+                if (item is not RecordEvent target || target.ID == source.ID || !target.HasScreenshot) continue;
+                using var targetImage = StepRenderer.Render(target);
+                if (targetImage == null) continue;
+
+                var rect = Rectangle.FromLTRB(
+                    (int)Math.Round(sourceRect.Left / (double)sourceSize.Width * targetImage.Width),
+                    (int)Math.Round(sourceRect.Top / (double)sourceSize.Height * targetImage.Height),
+                    (int)Math.Round(sourceRect.Right / (double)sourceSize.Width * targetImage.Width),
+                    (int)Math.Round(sourceRect.Bottom / (double)sourceSize.Height * targetImage.Height));
+                rect.Intersect(new Rectangle(Point.Empty, targetImage.Size));
+                if (rect.Width < 4 || rect.Height < 4) continue;
+
+                target.Overlay ??= new StepOverlay();
+                if (_activeTool == ImageTool.Crop)
+                {
+                    if (rect.Width < 16 || rect.Height < 16 || target.Overlay.HasCrop) continue;
+                    PushUndo(target);
+                    target.Overlay.ApplyCrop(rect);
+                }
+                else
+                {
+                    PushUndo(target);
+                    target.Overlay.Annotations.Add(new Annotation
+                    {
+                        Kind = _activeTool == ImageTool.Mosaic ? AnnotationKind.Mosaic : AnnotationKind.Highlight,
+                        X = rect.X, Y = rect.Y, Width = rect.Width, Height = rect.Height,
+                        MosaicBlock = MosaicBlock,
+                        ColorArgb = HighlightColor.ToArgb()
+                    });
+                }
+            }
         }
 
         private long _lastClickTime;

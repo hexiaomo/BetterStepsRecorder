@@ -9,15 +9,15 @@ namespace BetterStepsRecorder
 
     /// <summary>
     /// Persisted settings for the recording/capture behaviour.
-    /// Saved to %LOCALAPPDATA%\BetterStepsRecorder\bsrsettings.json.
+    /// Saved to bsrsettings.json in the current directory by default.
     /// Settings are organized hierarchically to match the Settings UI TreeView.
     /// </summary>
     public partial class BSRSettings
     {
-        private static readonly string SettingsPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "BetterStepsRecorder",
-            "bsrsettings.json");
+        private const string SettingsFileName = "bsrsettings.json";
+        private static readonly string DefaultSettingsPath = Path.Combine(Environment.CurrentDirectory, SettingsFileName);
+        private static readonly string SettingsLocationPath = Path.Combine(Environment.CurrentDirectory, ".bsrsettings.location");
+        private static string SettingsPath = ResolveSettingsPath();
 
         private static BSRSettings? _instance;
         private static readonly object _lock = new object();
@@ -27,6 +27,8 @@ namespace BetterStepsRecorder
         /// Example: Default.General.MinimizeOnStartRecording
         /// </summary>
         public static readonly BSRSettings Default = new BSRSettings();
+
+        public static string CurrentSettingsPath => SettingsPath;
 
         /// <summary>
         /// Validation constants for settings bounds.
@@ -245,6 +247,7 @@ namespace BetterStepsRecorder
                 else
                 {
                     settings = new BSRSettings();
+                    settings.Save();
                 }
 
                 // Migrate legacy HtmlExportSettings if they exist
@@ -276,6 +279,36 @@ namespace BetterStepsRecorder
                 File.WriteAllText(SettingsPath, json);
             }
             catch { }
+        }
+
+        /// <summary>Changes the persisted settings file and records its location for the next launch.</summary>
+        public static bool SetSettingsPath(string filePath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(filePath)) return false;
+                SettingsPath = Path.GetFullPath(filePath);
+                string? directory = Path.GetDirectoryName(SettingsPath);
+                if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
+                File.WriteAllText(SettingsLocationPath, SettingsPath);
+                Current.Save();
+                return true;
+            }
+            catch { return false; }
+        }
+
+        private static string ResolveSettingsPath()
+        {
+            try
+            {
+                if (File.Exists(SettingsLocationPath))
+                {
+                    string configuredPath = File.ReadAllText(SettingsLocationPath).Trim();
+                    if (!string.IsNullOrWhiteSpace(configuredPath)) return Path.GetFullPath(configuredPath);
+                }
+            }
+            catch { }
+            return DefaultSettingsPath;
         }
 
         /// <summary>Exports settings to a specified file path.</summary>

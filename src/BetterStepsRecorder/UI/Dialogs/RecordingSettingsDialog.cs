@@ -15,6 +15,9 @@ namespace BetterStepsRecorder.UI.Dialogs
         // ── 常规 ────────────────────────────────────────────────────
         private readonly ComboBox _cboMinimize = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
         private readonly CheckBox _chkAllowRecordSelf = new() { Text = "允许录制本程序自身的窗口", AutoSize = true };
+        private readonly TextBox _txtSettingsPath = new() { Width = 360, ReadOnly = true };
+        private readonly Button _btnSettingsPath = new() { Text = "更改…", AutoSize = true };
+        private string? _pendingSettingsPath;
 
         // ── 截图区域（点击）─────────────────────────────────────────
         private readonly RadioButton _rdoAllScreens = new() { Text = "全屏（所有显示器）", AutoSize = true };
@@ -72,6 +75,10 @@ namespace BetterStepsRecorder.UI.Dialogs
         {
             public CheckBox Summary = new() { Text = "摘要信息（步骤数 / 开始 / 结束 / 总耗时）", AutoSize = true };
             public CheckBox GeneratedDate = new() { Text = "生成日期", AutoSize = true };
+            public ComboBox SummaryPlacement = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 100 };
+            public ComboBox GeneratedDatePlacement = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 100 };
+            public CheckBox FooterBranding = new() { Text = "显示“由 Step Record 生成”", AutoSize = true };
+            public TextBox FooterText = new() { Width = 340 };
             public CheckBox StepTimestamps = new() { Text = "步骤时间戳", AutoSize = true };
             public CheckBox Action = new() { Text = "操作", AutoSize = true };
             public CheckBox Application = new() { Text = "应用程序", AutoSize = true };
@@ -164,13 +171,14 @@ namespace BetterStepsRecorder.UI.Dialogs
             splitPanel.Controls.Add(_contentHost);
             splitPanel.Controls.Add(navPanel);
 
-            var leftButtons = new FlowLayoutPanel { Dock = DockStyle.Left, AutoSize = true };
+            var leftButtons = new FlowLayoutPanel { AutoSize = true, Location = new Point(12, 8) };
             leftButtons.Controls.AddRange(new Control[] { _btnDefaults, _btnImport, _btnExport });
-            var rightButtons = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, FlowDirection = FlowDirection.RightToLeft };
+            var rightButtons = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.RightToLeft, Anchor = AnchorStyles.Top | AnchorStyles.Right, Location = new Point(516, 8) };
             rightButtons.Controls.AddRange(new Control[] { _btnCancel, _btnOk });
             var buttonPanel = new Panel { Dock = DockStyle.Bottom, Height = 46, Padding = new Padding(12, 8, 12, 8) };
             buttonPanel.Controls.Add(rightButtons);
             buttonPanel.Controls.Add(leftButtons);
+            buttonPanel.Resize += (_, _) => rightButtons.Left = buttonPanel.ClientSize.Width - rightButtons.Width - 12;
 
             _btnDefaults.Click += BtnDefaults_Click;
             _btnImport.Click += BtnImport_Click;
@@ -258,6 +266,8 @@ namespace BetterStepsRecorder.UI.Dialogs
             _cboMinimize.Items.AddRange(new object[] { "不最小化", "最小化到任务栏", "最小化到系统托盘" });
             page.Controls.Add(Group("开始录制时", Row(Label("主窗口"), _cboMinimize)));
             page.Controls.Add(Group("录制范围", _chkAllowRecordSelf));
+            _btnSettingsPath.Click += BtnSettingsPath_Click;
+            page.Controls.Add(Group("设置文件", Row(_txtSettingsPath, _btnSettingsPath)));
             page.Controls.Add(Hint("提示：默认不会录制本程序自己的窗口，避免把主界面录进步骤里。"));
             return page;
         }
@@ -351,10 +361,13 @@ namespace BetterStepsRecorder.UI.Dialogs
         {
             var c = new DetailControls();
             _detailControls[format] = c;
+            c.SummaryPlacement.Items.AddRange(new object[] { "不显示", "页首", "页尾" });
+            c.GeneratedDatePlacement.Items.AddRange(new object[] { "不显示", "页首", "页尾" });
 
             var page = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
             page.Controls.Add(Title(Categories[8 + (int)format]));
-            page.Controls.Add(Group("页首", c.Summary, c.GeneratedDate));
+            page.Controls.Add(Group("摘要与日期", Row(c.Summary, c.SummaryPlacement), Row(c.GeneratedDate, c.GeneratedDatePlacement)));
+            page.Controls.Add(Group("页尾", c.FooterBranding, Row(Label("自定义文字"), c.FooterText)));
             page.Controls.Add(Group("每个步骤", c.StepTimestamps));
             page.Controls.Add(Group("明细信息", c.Action, c.Application, c.Window, c.Element, c.ElementType, c.MousePosition));
             page.Controls.Add(Hint("提示：" + hint));
@@ -386,6 +399,8 @@ namespace BetterStepsRecorder.UI.Dialogs
                 _ => 1
             };
             _chkAllowRecordSelf.Checked = s.General.AllowRecordSelf;
+            _txtSettingsPath.Text = BSRSettings.CurrentSettingsPath;
+            _pendingSettingsPath = BSRSettings.CurrentSettingsPath;
 
             // 截图区域
             switch (s.Screenshot.Click.Mode)
@@ -470,6 +485,10 @@ namespace BetterStepsRecorder.UI.Dialogs
                 var c = kvp.Value;
                 c.Summary.Checked = d.ShowSummary;
                 c.GeneratedDate.Checked = d.ShowGeneratedDate;
+                c.SummaryPlacement.SelectedIndex = (int)d.SummaryPlacement;
+                c.GeneratedDatePlacement.SelectedIndex = (int)d.GeneratedDatePlacement;
+                c.FooterBranding.Checked = d.ShowFooterBranding;
+                c.FooterText.Text = d.FooterText;
                 c.StepTimestamps.Checked = d.ShowStepTimestamps;
                 c.Action.Checked = d.ShowAction;
                 c.Application.Checked = d.ShowApplication;
@@ -566,6 +585,10 @@ namespace BetterStepsRecorder.UI.Dialogs
                 var c = kvp.Value;
                 d.ShowSummary = c.Summary.Checked;
                 d.ShowGeneratedDate = c.GeneratedDate.Checked;
+                d.SummaryPlacement = (BSRSettings.ExportContentPlacement)c.SummaryPlacement.SelectedIndex;
+                d.GeneratedDatePlacement = (BSRSettings.ExportContentPlacement)c.GeneratedDatePlacement.SelectedIndex;
+                d.ShowFooterBranding = c.FooterBranding.Checked;
+                d.FooterText = c.FooterText.Text.Trim();
                 d.ShowStepTimestamps = c.StepTimestamps.Checked;
                 d.ShowAction = c.Action.Checked;
                 d.ShowApplication = c.Application.Checked;
@@ -574,6 +597,26 @@ namespace BetterStepsRecorder.UI.Dialogs
                 d.ShowElementType = c.ElementType.Checked;
                 d.ShowMousePosition = c.MousePosition.Checked;
             }
+
+            if (!string.Equals(_pendingSettingsPath, BSRSettings.CurrentSettingsPath, StringComparison.OrdinalIgnoreCase))
+                BSRSettings.SetSettingsPath(_pendingSettingsPath!);
+
+            s.Save();
+        }
+
+        private void BtnSettingsPath_Click(object? sender, EventArgs e)
+        {
+            using var dlg = new SaveFileDialog
+            {
+                Filter = "JSON 文件 (*.json)|*.json|所有文件 (*.*)|*.*",
+                DefaultExt = "json",
+                FileName = Path.GetFileName(BSRSettings.CurrentSettingsPath),
+                InitialDirectory = Path.GetDirectoryName(BSRSettings.CurrentSettingsPath),
+                Title = "选择设置文件保存位置"
+            };
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+            _pendingSettingsPath = dlg.FileName;
+            _txtSettingsPath.Text = dlg.FileName;
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
