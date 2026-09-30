@@ -29,7 +29,7 @@ namespace BetterStepsRecorder
             public string CustomImagePath { get; set; } = string.Empty;
 
             [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
-            public int Color { get; set; } = -65281; // Color.Magenta.ToArgb() = #FFFF00FF
+            public int Color { get; set; } = System.Drawing.Color.Red.ToArgb();
         }
 
         /// <summary>点击位置提示文字框（默认关闭）。</summary>
@@ -126,11 +126,11 @@ namespace BetterStepsRecorder
 
         public class HtmlSettings : IDetailExportSettings
         {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowSummary { get; set; } = false;
+            public bool ShowGeneratedDate { get; set; } = false;
             public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
             public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
-            public bool ShowFooterBranding { get; set; } = true;
+            public bool ShowFooterBranding { get; set; } = false;
             public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
@@ -148,11 +148,11 @@ namespace BetterStepsRecorder
 
         public class MarkdownSettings : IDetailExportSettings
         {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowSummary { get; set; } = false;
+            public bool ShowGeneratedDate { get; set; } = false;
             public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
             public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
-            public bool ShowFooterBranding { get; set; } = true;
+            public bool ShowFooterBranding { get; set; } = false;
             public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
@@ -170,11 +170,11 @@ namespace BetterStepsRecorder
 
         public class RtfSettings : IDetailExportSettings
         {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowSummary { get; set; } = false;
+            public bool ShowGeneratedDate { get; set; } = false;
             public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
             public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
-            public bool ShowFooterBranding { get; set; } = true;
+            public bool ShowFooterBranding { get; set; } = false;
             public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
@@ -192,11 +192,11 @@ namespace BetterStepsRecorder
 
         public class OdtSettings : IDetailExportSettings
         {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowSummary { get; set; } = false;
+            public bool ShowGeneratedDate { get; set; } = false;
             public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
             public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
-            public bool ShowFooterBranding { get; set; } = true;
+            public bool ShowFooterBranding { get; set; } = false;
             public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
@@ -214,11 +214,11 @@ namespace BetterStepsRecorder
 
         public class ObsidianSettings : IDetailExportSettings
         {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowSummary { get; set; } = false;
+            public bool ShowGeneratedDate { get; set; } = false;
             public ExportContentPlacement SummaryPlacement { get; set; } = ExportContentPlacement.Header;
             public ExportContentPlacement GeneratedDatePlacement { get; set; } = ExportContentPlacement.Header;
-            public bool ShowFooterBranding { get; set; } = true;
+            public bool ShowFooterBranding { get; set; } = false;
             public string FooterText { get; set; } = "";
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
